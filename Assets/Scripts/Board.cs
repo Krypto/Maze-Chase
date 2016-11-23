@@ -40,6 +40,10 @@ public class Board : MonoBehaviour {
         return board[x + 15, y + 20];
     }
 
+    public void Clear() {
+
+    }
+
     public void FindMatchingTeleport(int x, int y, out int newX, out int newY) {
         float xWeight = ((x < 0) ? 15f + x : 15f - x) / 15f;
         float yWeight = ((y < 0) ? 20f + y : 20f - y) / 20f;
@@ -95,7 +99,7 @@ public class Board : MonoBehaviour {
         Debug.LogError("Matching teleport not found!");
     }
 
-    public void Build() {
+    public void Build(int level = 1) {
         for (int x = 0; x < 30; x++) {
             for (int y = 0; y < 40; y++) {
                 Color c = boardDesignTexture.GetPixel(x, y);
