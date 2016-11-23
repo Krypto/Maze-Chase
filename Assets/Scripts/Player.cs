@@ -132,9 +132,9 @@ public class Player : MonoBehaviour {
             targetY = currentY;
             Debug.Log("Teleporting to " + targetX + ", " + targetY);
             transform.position = new Vector3(targetX, targetY, transform.position.z);
-        } else {
-            transform.Translate(new Vector3(dx * speed * Time.deltaTime, dy * speed * Time.deltaTime, 0), Space.World);
         }
+        transform.Translate(new Vector3(dx * speed * Time.deltaTime, dy * speed * Time.deltaTime, 0), Space.World);
+
     }
 
     //results meaningless if both dx and dy nonzero

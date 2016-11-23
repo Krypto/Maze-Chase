@@ -17,10 +17,7 @@ public class Board : MonoBehaviour {
         EMPTY = 10,
         OUT_OF_BOUNDS = -1,
     }
-
-    public ScoreDisplay scoreDisplay;
-    public ScoreDisplay highScoreDisplay;
-
+   
     public GameObject boardDesignImage;
     public GameObject wallBox;
     public GameObject[] cellPrefabs;
@@ -37,7 +34,6 @@ public class Board : MonoBehaviour {
     void Start() {
         boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
         Build();
-        highScoreDisplay.prefixText = "High Score: ";
     }
 
     public CellType Get(int x, int y) {

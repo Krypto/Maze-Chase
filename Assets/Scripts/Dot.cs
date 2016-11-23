@@ -4,18 +4,17 @@ using System.Collections;
 public class Dot : MonoBehaviour {
 
     private ScoreDisplay scoreDisplay;
-    private Board board;
+    private Game game;
 
     private void OnTriggerEnter2D(Collider2D collider) {
-        //Debug.Log("Trigger entered by " + collider.gameObject);
         if (collider.gameObject.tag == "Player") {
             Gulp();
         }
     }
 
     void Start() {
-        board = FindObjectOfType<Board>();
-        scoreDisplay = board.scoreDisplay;
+        game = FindObjectOfType<Game>();
+        scoreDisplay = game.scoreDisplay;
     }
 
     void Gulp() {
