@@ -64,6 +64,8 @@ public class Player : MonoBehaviour {
             dy = 0;
         }
 
+        SetAnimation(dx, dy);
+
         //update the current motion
         lastDx = dx;
         lastDy = dy;
@@ -105,7 +107,7 @@ public class Player : MonoBehaviour {
             Debug.Log("Teleporting to " + targetX + ", " + targetY);
             transform.position = new Vector3(targetX, targetY, transform.position.z);
         } else {
-            transform.Translate(new Vector3(dx * speed * Time.deltaTime, dy * speed * Time.deltaTime, 0));
+            transform.Translate(new Vector3(dx * speed * Time.deltaTime, dy * speed * Time.deltaTime, 0), Space.World);
         }
     }
 
@@ -128,5 +130,24 @@ public class Player : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    void SetAnimation(float dx, float dy) {
+        Animator a = GetComponent<Animator>();
+        if (dx == 0 && dy == 0) {
+            a.SetBool("Walking", false);
+        } else {
+            a.SetBool("Walking", true);
+            //point rat in proper direction
+            if (dy > 0) {
+                transform.localEulerAngles = new Vector3(0, 0, 90f);
+            } else if (dy < 0) {
+                transform.localEulerAngles = new Vector3(0, 0, -90f);
+            } else if (dx > 0) {
+                transform.localEulerAngles = new Vector3(0, 0, 0);
+            } else {
+                transform.localEulerAngles = new Vector3(0, 0, 180f);
+            }
+        }
     }
 }
