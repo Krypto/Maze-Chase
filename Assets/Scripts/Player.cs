@@ -4,12 +4,13 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class Player : MonoBehaviour {
     public float speed = 10f;
-
+    public float attackModeDuration = 10f;
     private Board board;
 
     float lastDx = 0;
     float lastDy = 0;
 
+    float attackModeTimeRemaining = 0f;
 
     // Use this for initialization
     void Start() {
@@ -19,6 +20,31 @@ public class Player : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         Move();
+        CheckAttackMode();
+    }
+
+    public bool IsAttackMode() {
+        return attackModeTimeRemaining > 0;
+    }
+
+    public void AttackMode() {
+        attackModeTimeRemaining += attackModeDuration;
+        transform.localScale = new Vector3(2, 2, 2);
+    }
+
+    public void EndAttackMode() {
+        attackModeTimeRemaining = 0;
+        transform.localScale = new Vector3(1, 1, 1);
+    }
+
+    void CheckAttackMode() {
+        if (attackModeTimeRemaining > 0) {
+            //Debug.Log("Time Remaining: " + attackModeTimeRemaining);
+            attackModeTimeRemaining -= Time.deltaTime;
+            if (attackModeTimeRemaining <= 0) {
+                EndAttackMode();
+            }
+        }
     }
 
     void Move() {

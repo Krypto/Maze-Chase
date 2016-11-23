@@ -18,7 +18,8 @@ public class Board : MonoBehaviour {
         OUT_OF_BOUNDS = -1,
     }
 
-    public CellType cellType;
+    public ScoreDisplay scoreDisplay;
+    public ScoreDisplay highScoreDisplay;
 
     public GameObject boardDesignImage;
     public GameObject wallBox;
@@ -36,6 +37,7 @@ public class Board : MonoBehaviour {
     void Start() {
         boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
         Build();
+        highScoreDisplay.prefixText = "High Score: ";
     }
 
     public CellType Get(int x, int y) {

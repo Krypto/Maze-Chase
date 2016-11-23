@@ -3,19 +3,26 @@ using System.Collections;
 
 public class BigDot : MonoBehaviour {
 
+    private ScoreDisplay scoreDisplay;
+    private Board board;
+
     private void OnTriggerEnter2D(Collider2D collider) {
         //Debug.Log("Trigger entered by " + collider.gameObject);
         if (collider.gameObject.tag == "Player") {
-            Gulp();
+            Gulp(collider.gameObject.GetComponent<Player>());
         }
     }
 
-    void Gulp() {
-        Debug.Log("Big Gulp");
+    void Start() {
+        board = FindObjectOfType<Board>();
+        scoreDisplay = board.scoreDisplay;
+    }
+
+    void Gulp(Player player) {
 
         //make gulp sound
-        //add to score
-        //switch to attack mode
+        scoreDisplay.Advance(50);
+        player.AttackMode();
         Destroy(gameObject);
     }
 }
