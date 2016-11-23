@@ -28,6 +28,7 @@ public class Board : MonoBehaviour {
     public bool editorShowBoardInScene = true;
 
     CellType[,] board = new CellType[30, 40];
+    bool[,] nodes = new bool[30, 40];// places where AI should consider a direction change
 
     Texture2D boardDesignTexture;
     // Use this for initialization
@@ -107,6 +108,21 @@ public class Board : MonoBehaviour {
                     board[x, y] = CellType.OUT_OF_BOUNDS;
                 } else {
                     board[x, y] = BuildPosition(x, y, c);
+                }
+            }
+        }
+
+        BuildNodes();
+    }
+
+    public void BuildNodes() {
+        for (int x = 0; x < 30; x++) {
+            for (int y = 0; y < 40; y++) {
+                nodes[x, y] = false;
+                CellType ct = Get(x, y);
+                if(ct != CellType.WALL) {
+                    //potential node
+
                 }
             }
         }
