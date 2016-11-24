@@ -4,11 +4,10 @@ using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour {
 
-    public static List<Enemy> allEnemies = new List<Enemy>();
-
     public float speed = 10f;
     public GameObject aiPrefab;
 
+    private Game game;
     private Board board;
     private Navigation navigation;
     private Player player;
@@ -20,9 +19,7 @@ public class Enemy : MonoBehaviour {
     int currentX;
     int currentY;
 
-    bool canMove = true;
-    int initialX;
-    int initialY;
+    bool isPlaying = true;
 
     public Vector2 CurrentPosition() {
         return new Vector2(currentX, currentY);
@@ -40,34 +37,20 @@ public class Enemy : MonoBehaviour {
         return board[currentX, currentY] != Board.CellType.WALL;//TODO fix this
     }
 
-    public void Stop() {
-        canMove = false;
-    }
-
     // Use this for initialization
     void Start() {
         board = FindObjectOfType<Board>();
         navigation = FindObjectOfType<Navigation>();
+        game = FindObjectOfType<Game>();
         player = FindObjectOfType<Player>();
         ai = aiPrefab.GetComponent<AI>();
         ai.SetEnemy(this);
-        allEnemies.Add(this);
-        canMove = true;
-        initialX = (int)Mathf.Round(transform.position.x);
-        initialY = (int)Mathf.Round(transform.position.y);
-        Reset();
-    }
-
-    public void Reset() {
-        currentX = initialX;
-        currentY = initialY;
-        transform.position = new Vector3(currentX, currentY, transform.position.z);
-        canMove = true;
-    }
+        Pause();
+    }   
 
     // Update is called once per frame
     void Update() {
-        if (canMove) {
+        if (isPlaying) {
             Move();
         }
     }
@@ -181,10 +164,10 @@ public class Enemy : MonoBehaviour {
             return true;
         }
 
-        foreach (Enemy enemy in allEnemies) {
+        foreach (Enemy enemy in game.GetEnemies()) {
             Vector2 p = enemy.CurrentPosition();
             if (enemy != this && p.x == x && p.y == y) {
-                Debug.Log("Enemy " + gameObject + " would collide with enemy " + enemy.gameObject);
+                //Debug.Log("Enemy " + gameObject + " would collide with enemy " + enemy.gameObject);
                 return true;
             }
         }
@@ -207,5 +190,13 @@ public class Enemy : MonoBehaviour {
                 transform.localEulerAngles = new Vector3(0, 0, 180f);
             }
         }
+    }
+
+    public void Pause() {
+        isPlaying = false;
+    }
+
+    public void Resume() {
+        isPlaying = true;
     }
 }

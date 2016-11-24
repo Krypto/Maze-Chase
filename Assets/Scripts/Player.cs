@@ -5,38 +5,56 @@ using UnityStandardAssets.CrossPlatformInput;
 public class Player : MonoBehaviour {
     public float speed = 10f;
     public float attackModeDuration = 10f;
+
     private Board board;
     private Navigation navigation;
+    private Game game;
+    private PlayerController controller;
 
-    float lastDx = 0;
-    float lastDy = 0;
+    float currentDx = 0;
+    float currentDy = 0;
 
     float attackModeTimeRemaining = 0f;
-    bool canMove = true;
-    private Vector3 startLocation;
+    bool playing = false;
 
-    // Use this for initialization
-    void Start() {
-        Initialize();
-    }
-
-    public void Initialize() {
+    private void Start() {
+        game = FindObjectOfType<Game>();
         board = FindObjectOfType<Board>();
         navigation = FindObjectOfType<Navigation>();
-        canMove = true;
-        startLocation = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-    }
-
-    public void Reset() {
-        canMove = true;
-        transform.position = startLocation;
+        controller = FindObjectOfType<PlayerController>();
+        controller.SetPlayer(this);
+        Pause();
     }
 
     // Update is called once per frame
     void Update() {
-        if (canMove) {
+        if (playing) {
             Move();
             CheckAttackMode();
+        }
+    }
+
+    public Vector2 CurrentDirection() {
+        return new Vector2(currentDx, currentDy);
+    }
+
+    public bool CanGo(Vector2 direction) {
+        int x = (int)Mathf.Round(transform.position.x);
+        int y = (int)Mathf.Round(transform.position.y);
+        //Debug.Log("x: " + x + "; y: " + y + "; nav: " + navigation[x,y]);
+
+        int dx = (int)direction.x;
+        int dy = (int)direction.y;
+        if (dx == 0 && dy == -1) {
+            return (navigation[x, y] & Navigation.Directions.UP) != 0;
+        } else if (dx == 0 && dy == 1) {
+            return (navigation[x, y] & Navigation.Directions.DOWN) != 0;
+        } else if (dx == -1 && dy == 0) {
+            return (navigation[x, y] & Navigation.Directions.LEFT) != 0;
+        } else if (dx == 1 && dy == 0) {
+            return (navigation[x, y] & Navigation.Directions.RIGHT) != 0;
+        } else {
+            return (navigation[x, y] & Navigation.Directions.STAY) != 0;
         }
     }
 
@@ -56,125 +74,63 @@ public class Player : MonoBehaviour {
 
     void CheckAttackMode() {
         if (attackModeTimeRemaining > 0) {
-            //Debug.Log("Time Remaining: " + attackModeTimeRemaining);
             attackModeTimeRemaining -= Time.deltaTime;
             if (attackModeTimeRemaining <= 0) {
                 EndAttackMode();
             }
         }
     }
+    
 
     void Move() {
-        //motion is defined in terms of the grid
-        int currentX = (int)Mathf.Round(transform.position.x);
-        int currentY = (int)Mathf.Round(transform.position.y);
-
-        //get input
-        float dx = CrossPlatformInputManager.GetAxis("Horizontal");
-        float dy = CrossPlatformInputManager.GetAxis("Vertical");
-
-        if (dx != 0 && dy != 0) {//contradictory motion, try to resolve
-            if (dx < dy) {//favor x if possible, it was more recently pressed
-                if (!WouldCollide(currentX, currentY, dx, 0)) {
-                    dy = 0;
-                } else {//favor y instead
-                    dx = 0;
-                }
-            } else {//favor y if possible, it was more recently pressed
-                if (!WouldCollide(currentX, currentY, 0, dy)) {
-                    dx = 0;
-                } else {//favor x instead
-                    dy = 0;
-                }
-            }
-        }
-
-        if (dx != 0 && dy != 0) {//still contradictory
-            if (dx < dy) {
-                dy = 0;
-            } else {
-                dx = 0;
-            }
-        }
-        if (WouldCollide(currentX, currentY, dx, dy) || (dx == 0 && dy == 0)) {
-            /*If input motion results in collision, or if there is no input motion, 
-             * revert to current motion*/
-            dx = lastDx;
-            dy = lastDy;
-        }
-        if (WouldCollide(currentX, currentY, dx, dy)) {//if still colliding, stop
-            dx = 0;
-            dy = 0;
-        }
-
-        SetAnimation(dx, dy);
+        Vector2 direction = controller.GetDirection();
+        int x = (int)Mathf.Round(transform.position.x);
+        int y = (int)Mathf.Round(transform.position.y);
+        SetAnimation(direction.x, direction.y);
 
         //update the current motion
-        lastDx = dx;
-        lastDy = dy;
+        currentDx = direction.x;
+        currentDy = direction.y;
 
         //compute next position of player according to current motion
-        int targetX = currentX;
-        int targetY = currentY;
+        int targetX = x;
+        int targetY = y;
 
-        if (dx > 0) {
+        if (direction.x > 0) {
             targetX++;
-        } else if (dx < 0) {
+        } else if (direction.x < 0) {
             targetX--;
         }
-        if (dy > 0) {
+        if (direction.y > 0) {
             targetY++;
-        } else if (dy < 0) {
+        } else if (direction.y < 0) {
             targetY--;
         }
 
         //compute actual motion toward next position
-        dx = targetX - transform.position.x;
-        dy = targetY - transform.position.y;
-        if (dx > .1) {
-            dx = 1;
-        } else if (dx < -.1) {
-            dx = -1;
+        float fdx = targetX - transform.position.x;
+        float fdy = targetY - transform.position.y;
+        if (fdx > .1) {
+            fdx = 1;
+        } else if (fdx < -.1) {
+            fdx = -1;
         }
-        if (dy > .1) {
-            dy = 1;
-        } else if (dy < -.1) {
-            dy = -1;
+        if (fdy > .1) {
+            fdy = 1;
+        } else if (fdy < -.1) {
+            fdy = -1;
         }
-
         //teleport to matching tunnel if at end of a tunnel
         if (board[targetX, targetY] == Board.CellType.TELEPORT) {
-            navigation.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
-            targetX = currentX;
-            targetY = currentY;
-            Debug.Log("Teleporting to " + targetX + ", " + targetY);
+            navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
+            targetX = x;
+            targetY = y;
+            //Debug.Log("Teleporting to " + targetX + ", " + targetY);
             transform.position = new Vector3(targetX, targetY, transform.position.z);
         }
-        transform.Translate(new Vector3(dx * speed * Time.deltaTime, dy * speed * Time.deltaTime, 0), Space.World);
-
+        transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
     }
-
-    //results meaningless if both dx and dy nonzero
-    bool WouldCollide(int currentX, int currentY, float dx, float dy) {
-        int x = currentX;
-        int y = currentY;
-        if (dx > 0) {
-            x++;
-        } else if (dx < 0) {
-            x--;
-        }
-        if (dy > 0) {
-            y++;
-        } else if (dy < 0) {
-            y--;
-        }
-        if (board[x, y] == Board.CellType.WALL
-                || board[x, y] == Board.CellType.ENEMY_ENTRANCE) {
-            return true;
-        }
-        return false;
-    }
-
+    
     void SetAnimation(float dx, float dy) {
         Animator a = GetComponent<Animator>();
         if (dx == 0 && dy == 0) {
@@ -202,12 +158,14 @@ public class Player : MonoBehaviour {
     }
 
     public void Die() {
-        //die sound
-        canMove = false;
-        foreach (Enemy enemy in Enemy.allEnemies) {
-            enemy.Stop();
-        }
-        Reset();
-        FindObjectOfType<Game>().EndTurn();
+        game.EndTurn();
+    }
+
+    public void Pause() {
+        playing = false;
+    }
+
+    public void Resume() {
+        playing = true;
     }
 }

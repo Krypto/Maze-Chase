@@ -8,10 +8,11 @@ public class Game : MonoBehaviour {
     public int initialNumLives = 3;
 
     public float startGameSequenceTime = 4f;
-    public float showPlayerTime = 2f;
+    public float SpawnPlayerTime = 2f;
     public float deathSequenceTime = 2f;
     public float gameOverTime = 4f;
     public float levelUpTime = 2f;
+    public float ResumePlayTime = 1f;
     public bool gameIsPlaying {
         get {
             return _gameIsPlaying;
@@ -27,12 +28,24 @@ public class Game : MonoBehaviour {
     bool _gameIsPlaying = false;
 
 
+    public Enemy[] GetEnemies() {
+        return enemies;
+    }
+
     public void PausePlay() {
         _gameIsPlaying = false;
+        player.Pause();
+        foreach(Enemy enemy in enemies) {
+            enemy.Pause();
+        }
     }
 
     public void ResumePlay() {
         _gameIsPlaying = true;
+        player.Resume();
+        foreach (Enemy enemy in enemies) {
+            enemy.Resume();
+        }
     }
 
     public void EndTurn() {
@@ -53,8 +66,8 @@ public class Game : MonoBehaviour {
         level++;
         float cutsceneTime = MaybeCutScene();
         ShowBoard();
-        ShowPlayer();
-        ShowEnemies();
+        SpawnPlayer();
+        SpawnEnemies();
         Invoke("StartPlay", levelUpTime + cutsceneTime);
     }
 
@@ -72,8 +85,8 @@ public class Game : MonoBehaviour {
         Initialize();
         ShowBoard();
         StartGameSequence();
-        Invoke("ShowPlayer", showPlayerTime);
-        Invoke("ShowEnemies", showPlayerTime);
+        Invoke("SpawnPlayer", SpawnPlayerTime);
+        Invoke("SpawnEnemies", SpawnPlayerTime);
         Invoke("StartPlay", startGameSequenceTime);
     }
 
@@ -97,13 +110,13 @@ public class Game : MonoBehaviour {
 
     }
 
-    void ShowPlayer() {
+    void SpawnPlayer() {
         player = (Instantiate(board.GetCellPrefab(Board.CellType.PLAYER),
             board.GetCellParent(Board.CellType.PLAYER).transform) as GameObject).GetComponent<Player>();
         player.transform.position = board.GetPlayerPosition();
     }
 
-    void ShowEnemies() {
+    void SpawnEnemies() {
         int i = 0;
         enemies = new Enemy[board.GetEnemyPositions().Count];
         foreach (Vector3 p in board.GetEnemyPositions()) {
@@ -140,13 +153,13 @@ public class Game : MonoBehaviour {
     }
 
     void Replay() {
-        ShowPlayer();
+        SpawnPlayer();
         int i = 0;
         foreach (Vector3 p in board.GetEnemyPositions()) {
             enemies[i].transform.position = p;
             i++;
         }
-        StartPlay();
+        Invoke("StartPlay", ResumePlayTime);//required or race condition
     }
 
     void GameOver() {
