@@ -12,11 +12,22 @@ public class Player : MonoBehaviour {
 
     float attackModeTimeRemaining = 0f;
     bool canMove = true;
+    private Vector3 startLocation;
 
     // Use this for initialization
     void Start() {
+        Initialize();
+    }
+
+    public void Initialize() {
         board = FindObjectOfType<Board>();
-        canMove = true;      
+        canMove = true;
+        startLocation = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+    }
+
+    public void Reset() {
+        canMove = true;
+        transform.position = startLocation;
     }
 
     // Update is called once per frame
@@ -130,7 +141,7 @@ public class Player : MonoBehaviour {
         }
 
         //teleport to matching tunnel if at end of a tunnel
-        if (board.Get(targetX, targetY) == Board.CellType.TELEPORT) {
+        if (board[targetX, targetY] == Board.CellType.TELEPORT) {
             board.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
             targetX = currentX;
             targetY = currentY;
@@ -155,8 +166,8 @@ public class Player : MonoBehaviour {
         } else if (dy < 0) {
             y--;
         }
-        if (board.Get(x, y) == Board.CellType.WALL
-                || board.Get(x, y) == Board.CellType.ENEMY_ENTRANCE) {
+        if (board[x, y] == Board.CellType.WALL
+                || board[x, y] == Board.CellType.ENEMY_ENTRANCE) {
             return true;
         }
         return false;
@@ -191,10 +202,10 @@ public class Player : MonoBehaviour {
     public void Die() {
         //die sound
         canMove = false;
-        foreach(Enemy enemy in Enemy.allEnemies) {
+        foreach (Enemy enemy in Enemy.allEnemies) {
             enemy.Stop();
         }
-        Destroy(gameObject, 0.8f);
+        Reset();
         FindObjectOfType<Game>().EndTurn();
     }
 }

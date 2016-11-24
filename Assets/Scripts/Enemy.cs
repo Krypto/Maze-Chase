@@ -36,7 +36,7 @@ public class Enemy : MonoBehaviour {
     }
 
     public bool IsAtNode() {
-        return board.IsNode(currentX + 15, currentY + 20);
+        return board[currentX, currentY] != Board.CellType.WALL;//TODO fix this
     }
 
     public void Stop() {
@@ -150,7 +150,7 @@ public class Enemy : MonoBehaviour {
         }
 
         //teleport to matching tunnel if at end of a tunnel
-        if (board.Get(targetX, targetY) == Board.CellType.TELEPORT) {
+        if (board[targetX, targetY] == Board.CellType.TELEPORT) {
             board.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
             targetX = currentX;
             targetY = currentY;
@@ -175,7 +175,7 @@ public class Enemy : MonoBehaviour {
         } else if (dy < 0) {
             y--;
         }
-        if (board.Get(x, y) == Board.CellType.WALL || board.Get(x, y) == Board.CellType.OUT_OF_BOUNDS) {
+        if (board[x,y] == Board.CellType.WALL || board[x,y] == Board.CellType.OUT_OF_BOUNDS) {
             return true;
         }
 

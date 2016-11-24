@@ -1,7 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System;
 
 public class Board : MonoBehaviour {
+
+    public static readonly int minX = -15;
+    public static readonly int maxX = 14;
+    public static readonly int minY = -20;
+    public static readonly int maxY = 19;
 
     public enum CellType {
         DOT = 0,
@@ -15,7 +22,7 @@ public class Board : MonoBehaviour {
         SCORE_DISPLAY = 8,
         REMAINING_LIFE = 9,
         EMPTY = 10,
-        OUT_OF_BOUNDS = -1,
+        OUT_OF_BOUNDS = 11,
     }
 
     public GameObject boardDesignImage;
@@ -23,192 +30,182 @@ public class Board : MonoBehaviour {
     public GameObject[] cellPrefabs;
     public GameObject[] cellParents;
 
-    public Color[] colors;
 
     public bool editorShowBoardInScene = true;
 
-    CellType[,] board = new CellType[30, 40];
-    bool[,] nodes = new bool[30, 40];// places where AI should consider a direction change
+    public Color[] cellColorMap = {
+        new Color(1,1,1,1),//white Dot
+        new Color(0,0,1,1),//blue Wall
+        new Color(1,1,0,1),//yellow Player
+        new Color(0,1,0,1),//green Enemy
+        new Color(1,0,1,1),//magenta Bonus
+        new Color(0.5f,0.5f,0.5f,1),//gray Big Dot
+        new Color(0,1,1,1),//cyan Enemy Entrance
+        new Color(0.5f,0,0.5f,1),//purple Teleport
+        new Color(0.25f,0,0.5f,1),//indigo Score Display
+        new Color(0.75f, 0.25f, 0.25f, 1),//brown Remaining Life
+        new Color(0,0,0,1),//black Empty
+        new Color(1,0,0,1),//red Out Of Bounds
+        new Color(1,0.5f,0,1),//orange (future expansion)
+    };
 
+    CellType[,] _cells = new CellType[maxX - minX + 1, maxY - minY + 1];
+
+    public CellType this[int x, int y] {
+        get {
+            return _cells[x - minX, y - minY];
+        }
+
+        private set {
+            _cells[x - minX, y - minY] = value;
+        }
+    }
+
+    List<Vector3> enemyPositions = new List<Vector3>();
+    Vector3 playerPosition;
+    Vector3 bonusPosition;
+    List<Vector3> enemyEntrances = new List<Vector3>();
+    List<Vector3> teleports = new List<Vector3>();
     Texture2D boardDesignTexture;
+
+    public GameObject GetCellPrefab(CellType t) {
+        return cellPrefabs[(int)t];
+    }
+
+    public GameObject GetCellParent(CellType t) {
+        return cellParents[(int)t];
+    }
+
+
+    public Vector3 GetPlayerPosition() {
+        return playerPosition;
+    }
+
+    public Vector3 GetBonusPosition() {
+        return bonusPosition;
+    }
+
+    public List<Vector3> GetEnemyPositions() {
+        return enemyPositions;
+    }
+    public List<Vector3> GetEnemyEntrances() {
+        return enemyEntrances;
+    }
+    public List<Vector3> GetTeleports() {
+        return teleports;
+    }
+    public void setBoardDesignTexture(Texture2D t) {
+        boardDesignTexture = t;
+    }
+
+    public void Build() {
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                this[x, y] = ColorToCellType(getPixelColor(boardDesignTexture, x, y));
+            }
+        }
+    }
+
+    public void Show() {
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                switch (this[x, y]) {
+                    case CellType.DOT:
+                    case CellType.BIG_DOT:
+                    case CellType.WALL:
+                    case CellType.ENEMY_ENTRANCE:
+                        Show(x, y, this[x, y]);
+                        break;
+                    case CellType.PLAYER:
+                        playerPosition = new Vector3(x, y, 0);
+                        break;
+                    case CellType.ENEMY:
+                        enemyPositions.Add(new Vector3(x, y, 0));
+                        break;
+                    case CellType.BONUS_PICKUP:
+                        bonusPosition = new Vector3(x, y, 0);
+                        break;
+                    case CellType.TELEPORT:
+                        teleports.Add(new Vector3(x, y, 0));
+                        break;
+                    case CellType.SCORE_DISPLAY:
+                        break;
+                    case CellType.REMAINING_LIFE:
+                        break;
+                    case CellType.EMPTY:
+                        break;
+                    case CellType.OUT_OF_BOUNDS:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    CellType ColorToCellType(Color c) {
+        int bestIndex = 0;
+        float bestDistance = 1000f;
+        for (int i = 0; i < cellColorMap.Length; i++) {
+            float distance = ColorDistance(cellColorMap[i], c);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestIndex = i;
+            }
+        }
+        return (CellType)bestIndex;
+    }
+
+    float ColorDistance(Color x, Color y) {
+        float xh, xs, xv, yh, ys, yv;
+        Color.RGBToHSV(x, out xh, out xs, out xv);
+        Color.RGBToHSV(y, out yh, out ys, out yv);
+
+        float h = xh - yh;
+        if (h > 0.5f) {
+            h -= 1;
+        }
+        if (h < 0) {
+            h = -h;
+        }
+
+        float s = Mathf.Abs(xs - ys);
+
+        float v = Mathf.Abs(xv - yv);
+
+        return 10 * h + 5 * s + v;
+    }
+
+    Color getPixelColor(Texture2D t, int x, int y) {
+        return t.GetPixel(x - minX, y - minY);
+    }
+
+    void Show(int x, int y, CellType t) {
+        GameObject sprite = Instantiate(cellPrefabs[(int)t], cellParents[(int)t].transform) as GameObject;
+        sprite.transform.position = new Vector2(x, y);
+    }
+
     // Use this for initialization
     void Start() {
         boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
-        Build();
-    }
-
-
-    public bool IsNode(int x, int y) {
-        return nodes[x, y];
-    }
-
-    public CellType Get(int x, int y) {
-        return board[x + 15, y + 20];
     }
 
     public void Clear() {
-
-    }
-
-    public void FindMatchingTeleport(int x, int y, out int newX, out int newY) {
-        float xWeight = ((x < 0) ? 15f + x : 15f - x) / 15f;
-        float yWeight = ((y < 0) ? 20f + y : 20f - y) / 20f;
-        if (xWeight < yWeight) {
-            //probably a horizontal teleport
-            if (x < 0) {
-                //start looking on the right
-                Debug.Log("Looking for teleport on the right");
-                for (newX = 14; newX >= -15; newX--) {
-                    for (newY = 19; newY >= -20; newY--) {
-                        if (Get(newX, newY) == CellType.TELEPORT) {
-                            return;
-                        }
-                    }
-                }
-            } else {
-                //start looking on the left
-                Debug.Log("Looking for teleport on the left");
-                for (newX = -15; newX <= 14; newX++) {
-                    for (newY = 19; newY >= -20; newY--) {
-                        if (Get(newX, newY) == CellType.TELEPORT) {
-                            return;
-                        }
-                    }
-                }
-            }
-        } else {
-            //probably a vertical teleport
-            if (y < 0) {
-                //start looking on the top
-                Debug.Log("Looking for teleport on the top");
-                for (newY = 19; newY >= -20; newY--) {
-                    for (newX = 14; newX >= -15; newX--) {
-                        if (Get(newX, newY) == CellType.TELEPORT) {
-                            return;
-                        }
-                    }
-                }
-            } else {
-                //start looking on the bottom
-                Debug.Log("Looking for teleport on the bottom");
-                for (newY = -20; newY <= 19; newY++) {
-                    for (newX = 14; newX >= -15; newX--) {
-                        if (Get(newX, newY) == CellType.TELEPORT) {
-                            return;
-                        }
-                    }
-                }
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                this[x, y] = CellType.EMPTY;
             }
         }
-        newX = x;
-        newY = y;
-        Debug.LogError("Matching teleport not found!");
-    }
-
-    public void Build(int level = 1) {
-        for (int x = 0; x < 30; x++) {
-            for (int y = 0; y < 40; y++) {
-                Color c = boardDesignTexture.GetPixel(x, y);
-                if (c.a < 0.25) {
-                    board[x, y] = CellType.OUT_OF_BOUNDS;
-                } else {
-                    board[x, y] = BuildPosition(x, y, c);
-                }
+        foreach(GameObject holder in cellParents) {
+            foreach(Transform child in holder.transform) {
+                Destroy(child.gameObject);
             }
         }
-
-        BuildNodes();
-    }
-
-    public void BuildNodes() {
-        // a node is any place where the AI might change between horiztonal and vertical movement
-        for (int x = 0; x < 30; x++) {
-            for (int y = 0; y < 40; y++) {
-                nodes[x, y] = false;
-                CellType ct = Get(x, y);
-                if (ct != CellType.WALL) {
-                    CellType ct1 = Get(x + 1, y);
-                    CellType ct2 = Get(x, y + 1);
-                    CellType ct3 = Get(x - 1, y);
-                    CellType ct4 = Get(x, y - 1);
-                    if((ct1!=CellType.WALL || ct3!=CellType.WALL)
-                        &&(ct2 != CellType.WALL || ct4 != CellType.WALL)) {
-                        nodes[x, y] = true;
-                    }
-                }
-            }
-        }
-    }
-
-    public CellType BuildPosition(int x, int y, Color c) {
-        CellType ct = ColorToCellType(c);
-
-        switch (ct) {
-            case CellType.DOT:
-            case CellType.PLAYER:
-            case CellType.ENEMY:
-            case CellType.BIG_DOT:
-            case CellType.ENEMY_ENTRANCE:
-            case CellType.REMAINING_LIFE:
-                SpawnSprite(cellPrefabs[(int)ct], x, y, cellParents[(int)ct]);
-                break;
-            case CellType.WALL:
-                SpawnSprite(cellPrefabs[(int)ct], x, y, cellParents[(int)ct]);
-                if (boardDesignTexture.GetPixel(x - 1, y) == c) {
-                    GameObject box = SpawnSprite(wallBox, x - 0.5f, y, cellParents[(int)ct]);
-                    box.transform.Translate(Vector3.back);
-
-                }
-                if (boardDesignTexture.GetPixel(x, y - 1) == c) {
-                    GameObject box = SpawnSprite(wallBox, x, y - 0.5f, cellParents[(int)ct]);
-                    box.transform.Translate(Vector3.back);
-                }
-                break;
-            case CellType.BONUS_PICKUP:
-                break;
-            case CellType.TELEPORT:
-                break;
-            case CellType.SCORE_DISPLAY:
-                break;
-            case CellType.EMPTY:
-                break;
-            default:
-                throw new UnityException("Unrecognized board design pixel value " + c);
-        }
-        return ct;
-    }
-
-
-    public CellType ColorToCellType(Color c) {
-        for (int i = 0; i < colors.Length; i++) {
-            if (colors[i] == c) {
-                return (CellType)i;
-            }
-        }
-        for (int i = 0; i < colors.Length; i++) {
-            if ((colors[i].r - c.r) * (colors[i].r - c.r)
-                + (colors[i].g - c.g) * (colors[i].g - c.g)
-                + (colors[i].b - c.b) * (colors[i].b - c.b)
-                + (colors[i].a - c.a) * (colors[i].a - c.a) < .1) {
-                return (CellType)i;
-            }
-
-        }
-        return (CellType)(-1);
-    }
-
-    public GameObject SpawnSprite(GameObject prefab, float x, float y, GameObject parent, float scale = 0f) {
-        GameObject sprite = Instantiate(prefab, parent.transform) as GameObject;
-        sprite.transform.position = new Vector2(x - 15, y - 20);
-        if (scale != 0f) {
-            sprite.transform.localScale = new Vector2(scale, scale);
-        }
-        return sprite;
     }
 
     private void OnDrawGizmos() {
         if (editorShowBoardInScene) {
-            Gizmos.DrawGUITexture(Rect.MinMaxRect(-15, 20, 15, -20), boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture);
+            Gizmos.DrawGUITexture(Rect.MinMaxRect(minX, maxY + 1, maxX + 1, minY), boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture);
         }
     }
 
