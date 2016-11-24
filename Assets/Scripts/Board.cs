@@ -17,7 +17,7 @@ public class Board : MonoBehaviour {
         EMPTY = 10,
         OUT_OF_BOUNDS = -1,
     }
-   
+
     public GameObject boardDesignImage;
     public GameObject wallBox;
     public GameObject[] cellPrefabs;
@@ -35,6 +35,11 @@ public class Board : MonoBehaviour {
     void Start() {
         boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
         Build();
+    }
+
+
+    public bool IsNode(int x, int y) {
+        return nodes[x, y];
     }
 
     public CellType Get(int x, int y) {
@@ -116,13 +121,20 @@ public class Board : MonoBehaviour {
     }
 
     public void BuildNodes() {
+        // a node is any place where the AI might change between horiztonal and vertical movement
         for (int x = 0; x < 30; x++) {
             for (int y = 0; y < 40; y++) {
                 nodes[x, y] = false;
                 CellType ct = Get(x, y);
-                if(ct != CellType.WALL) {
-                    //potential node
-
+                if (ct != CellType.WALL) {
+                    CellType ct1 = Get(x + 1, y);
+                    CellType ct2 = Get(x, y + 1);
+                    CellType ct3 = Get(x - 1, y);
+                    CellType ct4 = Get(x, y - 1);
+                    if((ct1!=CellType.WALL || ct3!=CellType.WALL)
+                        &&(ct2 != CellType.WALL || ct4 != CellType.WALL)) {
+                        nodes[x, y] = true;
+                    }
                 }
             }
         }

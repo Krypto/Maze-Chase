@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Game : MonoBehaviour {
     int level = 0;
+    public int randomSeed;
     public ScoreDisplay scoreDisplay;
     public ScoreDisplay highScoreDisplay;
 
@@ -18,6 +19,7 @@ public class Game : MonoBehaviour {
         scoreDisplay.score = 0;
         highScoreDisplay.prefixText = "High Score: ";
         StartLevel(true);
+        UnityEngine.Random.InitState(randomSeed);
     }
 
     public void StartLevel(bool firstTime = false) {
@@ -33,6 +35,7 @@ public class Game : MonoBehaviour {
 
     public void NewBoard() {
         board.Clear();
+        Enemy.allEnemies.Clear();
         board.Build(level);
     }
 

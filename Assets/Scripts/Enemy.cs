@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour {
+
+    public static List<Enemy> allEnemies = new List<Enemy>();
 
     public float speed = 10f;
     public GameObject aiPrefab;
@@ -13,9 +16,23 @@ public class Enemy : MonoBehaviour {
     float lastDx = 0;
     float lastDy = 0;
 
+    int currentX;
+    int currentY;
+
+    public Vector2 CurrentPosition() {
+        return new Vector2(currentX, currentY);
+    }
 
     public Vector2 CurrentDirection() {
         return new Vector2(lastDx, lastDy);
+    }
+
+    public bool CanGo(Vector2 direction) {
+        return !WouldCollide(currentX, currentY, direction.x, direction.y);
+    }
+
+    public bool IsAtNode() {
+        return board.IsNode(currentX + 15, currentY + 20);
     }
 
     // Use this for initialization
@@ -24,6 +41,7 @@ public class Enemy : MonoBehaviour {
         player = FindObjectOfType<Player>();
         ai = aiPrefab.GetComponent<AI>();
         ai.SetEnemy(this);
+        allEnemies.Add(this);
     }
 
     // Update is called once per frame
@@ -33,12 +51,13 @@ public class Enemy : MonoBehaviour {
 
     void Move() {
         //motion is defined in terms of the grid
-        int currentX = (int)Mathf.Round(transform.position.x);
-        int currentY = (int)Mathf.Round(transform.position.y);
+        currentX = (int)Mathf.Round(transform.position.x);
+        currentY = (int)Mathf.Round(transform.position.y);
 
         //get AI input
-        float dx = ai.GetHorizontalInput();
-        float dy = ai.GetVerticalInput();
+        Vector2 d = ai.GetDirection();
+        float dx = d.x;
+        float dy = d.y;
 
         if (dx != 0 && dy != 0) {//contradictory motion, try to resolve
             if (dx < dy) {//favor x if possible, it was more recently pressed
@@ -135,17 +154,25 @@ public class Enemy : MonoBehaviour {
         } else if (dy < 0) {
             y--;
         }
-        if (board.Get(x, y) == Board.CellType.WALL) {
+        if (board.Get(x, y) == Board.CellType.WALL || board.Get(x, y) == Board.CellType.OUT_OF_BOUNDS) {
             return true;
+        }
+
+        foreach (Enemy enemy in allEnemies) {
+            Vector2 p = enemy.CurrentPosition();
+            if (enemy != this && p.x == x && p.y == y) {
+                Debug.Log("Enemy " + gameObject + " would collide with enemy " + enemy.gameObject);
+                return true;
+            }
         }
         return false;
     }
     void SetAnimation(float dx, float dy) {
         //Animator a = GetComponent<Animator>();
         if (dx == 0 && dy == 0) {
-           // a.SetBool("Walking", false);
+            // a.SetBool("Walking", false);
         } else {
-           // a.SetBool("Walking", true);
+            // a.SetBool("Walking", true);
             //point cat in proper direction
             if (dy > 0) {
                 transform.localEulerAngles = new Vector3(0, 0, 90f);
