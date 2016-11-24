@@ -19,6 +19,8 @@ public class Enemy : MonoBehaviour {
     int currentX;
     int currentY;
 
+    bool canMove = true;
+
     public Vector2 CurrentPosition() {
         return new Vector2(currentX, currentY);
     }
@@ -35,6 +37,10 @@ public class Enemy : MonoBehaviour {
         return board.IsNode(currentX + 15, currentY + 20);
     }
 
+    public void Stop() {
+        canMove = false;
+    }
+
     // Use this for initialization
     void Start() {
         board = FindObjectOfType<Board>();
@@ -42,11 +48,14 @@ public class Enemy : MonoBehaviour {
         ai = aiPrefab.GetComponent<AI>();
         ai.SetEnemy(this);
         allEnemies.Add(this);
+        canMove = true;
     }
 
     // Update is called once per frame
     void Update() {
-        Move();
+        if (canMove) {
+            Move();
+        }
     }
 
     void Move() {

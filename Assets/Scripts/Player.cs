@@ -11,16 +11,20 @@ public class Player : MonoBehaviour {
     float lastDy = 0;
 
     float attackModeTimeRemaining = 0f;
+    bool canMove = true;
 
     // Use this for initialization
     void Start() {
         board = FindObjectOfType<Board>();
+        canMove = true;      
     }
 
     // Update is called once per frame
     void Update() {
-        Move();
-        CheckAttackMode();
+        if (canMove) {
+            Move();
+            CheckAttackMode();
+        }
     }
 
     public bool IsAttackMode() {
@@ -175,5 +179,22 @@ public class Player : MonoBehaviour {
                 transform.localEulerAngles = new Vector3(0, 0, 180f);
             }
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collider) {
+        Enemy enemy = collider.gameObject.GetComponent<Enemy>();
+        if (enemy) {
+            Die();
+        }
+    }
+
+    public void Die() {
+        //die sound
+        canMove = false;
+        foreach(Enemy enemy in Enemy.allEnemies) {
+            enemy.Stop();
+        }
+        Destroy(gameObject, 0.8f);
+        FindObjectOfType<Game>().EndTurn();
     }
 }
