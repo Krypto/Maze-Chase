@@ -10,8 +10,14 @@ public class Game : MonoBehaviour {
     Player player;
     Board board;
 
+    float initialPlayerX;
+    float initialPlayerY;
+
     private void Start() {
         board = FindObjectOfType<Board>();
+        Player p = FindObjectOfType<Player>();
+        initialPlayerX = p.transform.position.x;
+        initialPlayerY = p.transform.position.y;
     }
 
     public void StartGame() {
@@ -27,16 +33,19 @@ public class Game : MonoBehaviour {
             //board should already be built
             StartGameSequence();
             Invoke("RestartLevel", 3f);
-        }else {
+        } else {
             Invoke("NewBoard", 1f);
             Invoke("RestartLevel", 1.1f);
-        }        
+        }
     }
 
     public void NewBoard() {
         board.Clear();
         Enemy.allEnemies.Clear();
         board.Build(level);
+        Player p = FindObjectOfType<Player>();
+        initialPlayerX = p.transform.position.x;
+        initialPlayerY = p.transform.position.y;
     }
 
     public void StartGameSequence() {
@@ -48,8 +57,14 @@ public class Game : MonoBehaviour {
     }
 
     public void RestartLevel() {
+        foreach (Enemy enemy in Enemy.allEnemies) {
+            enemy.Reset();
+        }
         //subtract a life
         player = FindObjectOfType<Player>();
+        if (!player) {
+            board.SpawnSprite(board.cellPrefabs[(int)Board.CellType.PLAYER], initialPlayerX + 15, initialPlayerY + 20, board.cellParents[(int)Board.CellType.PLAYER]);
+        }
         //Move player and enemies back to start position
     }
 
@@ -80,7 +95,7 @@ public class Game : MonoBehaviour {
     }
 
     private void Update() {
-        if(scoreDisplay.score > highScoreDisplay.score) {//watch for high score
+        if (scoreDisplay.score > highScoreDisplay.score) {//watch for high score
             highScoreDisplay.score = scoreDisplay.score;
         }
     }

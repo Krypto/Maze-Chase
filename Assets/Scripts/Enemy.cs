@@ -20,6 +20,8 @@ public class Enemy : MonoBehaviour {
     int currentY;
 
     bool canMove = true;
+    int initialX;
+    int initialY;
 
     public Vector2 CurrentPosition() {
         return new Vector2(currentX, currentY);
@@ -48,6 +50,16 @@ public class Enemy : MonoBehaviour {
         ai = aiPrefab.GetComponent<AI>();
         ai.SetEnemy(this);
         allEnemies.Add(this);
+        canMove = true;
+        initialX = (int)Mathf.Round(transform.position.x);
+        initialY = (int)Mathf.Round(transform.position.y);
+        Reset();
+    }
+
+    public void Reset() {
+        currentX = initialX;
+        currentY = initialY;
+        transform.position = new Vector3(currentX, currentY, transform.position.z);
         canMove = true;
     }
 
