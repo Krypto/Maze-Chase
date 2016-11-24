@@ -6,6 +6,7 @@ public class Player : MonoBehaviour {
     public float speed = 10f;
     public float attackModeDuration = 10f;
     private Board board;
+    private Navigation navigation;
 
     float lastDx = 0;
     float lastDy = 0;
@@ -21,6 +22,7 @@ public class Player : MonoBehaviour {
 
     public void Initialize() {
         board = FindObjectOfType<Board>();
+        navigation = FindObjectOfType<Navigation>();
         canMove = true;
         startLocation = new Vector3(transform.position.x, transform.position.y, transform.position.z);
     }
@@ -142,7 +144,7 @@ public class Player : MonoBehaviour {
 
         //teleport to matching tunnel if at end of a tunnel
         if (board[targetX, targetY] == Board.CellType.TELEPORT) {
-            board.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
+            navigation.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
             targetX = currentX;
             targetY = currentY;
             Debug.Log("Teleporting to " + targetX + ", " + targetY);

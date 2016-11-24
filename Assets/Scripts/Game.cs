@@ -20,6 +20,7 @@ public class Game : MonoBehaviour {
 
     Player player;
     Board board;
+    Navigation navigation;
     Enemy[] enemies;
     int level = 0;
     int numLives;

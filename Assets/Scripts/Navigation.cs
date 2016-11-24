@@ -30,11 +30,29 @@ public class Navigation : MonoBehaviour {
     }
 
     /*  
-     * if i<matchingTeleports.Count/2, then i matches with i + matchingTeleports.Count/2
+     * Teleport no. i matches with (i +   floor(matchingTeleports.Count/2)) % matchingTeleports.Count
+     * 
+     * Will behave funny if there are an odd number of teleports (if a goes to b, b does not 
+     * go back to a; a star-shaped pattern)
      */
     List<Vector3> matchingTeleports;
 
     Directions[,] _navigation = new Directions[Board.maxX - Board.minX + 1, Board.maxY - Board.minY + 1];
+
+    public void FindMatchingTeleport(int x, int y, out int newX, out int newY) {
+        for (int i = 0; i < matchingTeleports.Count; i++) {
+            Vector3 p = matchingTeleports[i];
+            if (Mathf.Round(p.x) == x && Mathf.Round(p.y) == y) {
+                p = matchingTeleports[(i + (int)Mathf.Floor(matchingTeleports.Count / 2)) % matchingTeleports.Count];
+                newX = (int)Mathf.Round(p.x);
+                newY = (int)Mathf.Round(p.y);
+                return;
+            }
+        }
+        Debug.LogError("Matching teleport not found!");
+        newX = 0;
+        newY = 0;
+    }
 
     void Build(Board board) {
         // see where actors can stay

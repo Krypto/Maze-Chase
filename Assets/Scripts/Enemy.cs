@@ -10,6 +10,7 @@ public class Enemy : MonoBehaviour {
     public GameObject aiPrefab;
 
     private Board board;
+    private Navigation navigation;
     private Player player;
     private AI ai;
 
@@ -46,6 +47,7 @@ public class Enemy : MonoBehaviour {
     // Use this for initialization
     void Start() {
         board = FindObjectOfType<Board>();
+        navigation = FindObjectOfType<Navigation>();
         player = FindObjectOfType<Player>();
         ai = aiPrefab.GetComponent<AI>();
         ai.SetEnemy(this);
@@ -151,7 +153,7 @@ public class Enemy : MonoBehaviour {
 
         //teleport to matching tunnel if at end of a tunnel
         if (board[targetX, targetY] == Board.CellType.TELEPORT) {
-            board.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
+            navigation.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
             targetX = currentX;
             targetY = currentY;
             Debug.Log("Teleporting to " + targetX + ", " + targetY);
