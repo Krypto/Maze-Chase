@@ -54,7 +54,7 @@ public class Navigation : MonoBehaviour {
         newY = 0;
     }
 
-    void Build(Board board) {
+    public void Build(Board board) {
         // see where actors can stay
         for (int x = Board.minX; x <= Board.maxX; x++) {
             for (int y = Board.minY; y <= Board.maxY; y++) {

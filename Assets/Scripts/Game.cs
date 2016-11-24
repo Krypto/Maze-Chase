@@ -89,6 +89,8 @@ public class Game : MonoBehaviour {
         board = FindObjectOfType<Board>();
         board.Build();
         board.Show();
+        navigation = FindObjectOfType<Navigation>();
+        navigation.Build(board);
     }
 
     void StartGameSequence() {
