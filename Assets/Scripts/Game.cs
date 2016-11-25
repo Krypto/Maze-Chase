@@ -119,11 +119,11 @@ public class Game : MonoBehaviour {
     void SpawnEnemies() {
         int i = 0;
         enemies = new Enemy[board.GetEnemyPositions().Count];
-        foreach (Vector3 p in board.GetEnemyPositions()) {
+        foreach (Vector3 p in board.GetEnemyPositions()) {          
             enemies[i] = (Instantiate(board.GetCellPrefab(Board.CellType.ENEMY),
             board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent<Enemy>();
             enemies[i].transform.position = p;
-            i++;
+            i++;         
         }
     }
 

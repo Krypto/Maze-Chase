@@ -16,35 +16,25 @@ public class RandomAI : MonoBehaviour, AI {
                 canGo.Add(directions[i]);
             }
         }
+        if (canGo.Count == 0) {
+            Debug.LogError("enemy is stuck!");
+            return Vector2.zero;
+        }
         Vector2 d = enemy.CurrentDirection();
-        if (d == Vector2.zero) {
+
+        if (d == Vector2.zero || !enemy.CanGo(d)) {
             return canGo[UnityEngine.Random.Range(0, canGo.Count)];
         }
 
         Vector2 d1 = new Vector2(d.y, d.x);
         Vector2 d2 = new Vector2(-d.y, -d.x);
 
+        if (enemy.CanGo(d1) || enemy.CanGo(d2)) {
+            return canGo[UnityEngine.Random.Range(0, canGo.Count)];
+        }
 
-        if (enemy.CanGo(d1) || enemy.CanGo(d2) || UnityEngine.Random.value > .99f) {
-            canGo.Clear();
-            for (int i = 0; i < directions.Length; i++) {
-                if (enemy.CanGo(directions[i]) && directions[i] != d && directions[i] != -d) {
-                    canGo.Add(directions[i]);
-                }
-                if (canGo.Count == 0 || UnityEngine.Random.value > .99f) {
-                    if (enemy.CanGo(directions[i]) && directions[i] != d) {
-                        canGo.Add(directions[i]);
-                    }
-                    if (canGo.Count == 0 || UnityEngine.Random.value > .99f) {
-                        if (enemy.CanGo(directions[i])) {
-                            canGo.Add(directions[i]);
-                        }
-                    }
-                }
-            }
-            if (UnityEngine.Random.value > 0.75f || !canGo.Contains(d)) {
-                return canGo[UnityEngine.Random.Range(0, canGo.Count)];
-            }
+        if (enemy.CanGo(d)) {
+            return d;
         }
         return Vector2.zero;
     }

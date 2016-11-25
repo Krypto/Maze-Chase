@@ -16,15 +16,8 @@ public class Enemy : MonoBehaviour {
     float currentDx = 0;
     float currentDy = 0;
 
-    int currentX;
-    int currentY;
-
     bool isPlaying = true;
-
-    public Vector2 CurrentPosition() {
-        return new Vector2(currentX, currentY);
-    }
-
+    
     public Vector2 CurrentDirection() {
         return new Vector2(currentDx, currentDy);
     }
@@ -54,7 +47,7 @@ public class Enemy : MonoBehaviour {
         navigation = FindObjectOfType<Navigation>();
         game = FindObjectOfType<Game>();
         player = FindObjectOfType<Player>();
-        ai = aiPrefab.GetComponent<AI>();
+        ai = (Instantiate(aiPrefab, transform.parent) as GameObject).GetComponent<AI>();
         ai.SetEnemy(this);
         Pause();
     }   

@@ -18,14 +18,16 @@ public class PlayerController : MonoBehaviour {
                 canGo.Add(directions[i]);
             }
         }
+        if (canGo.Count == 0) {
+            Debug.LogError("player is stuck!");
+            return Vector2.zero;
+        }
         Vector2 d = player.CurrentDirection();
-
-        if (d == Vector2.zero) {
-           
+        if (d == Vector2.zero || !player.CanGo(d)) {
             return GetInputDirection(canGo);
         }
         Vector2 d1 = GetInputDirection(canGo);
-        if(d1 != Vector2.zero) {
+        if (d1 != Vector2.zero) {
             return d1;
         }
         if (canGo.Contains(d)) {
