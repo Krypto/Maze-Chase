@@ -29,7 +29,7 @@ public class RandomAI : MonoBehaviour, AI {
         Vector2 d1 = new Vector2(d.y, d.x);
         Vector2 d2 = new Vector2(-d.y, -d.x);
 
-        if (enemy.CanGo(d1) || enemy.CanGo(d2)) {
+        if ((enemy.CanGo(d1) || enemy.CanGo(d2)) && Random.value > .95f) {
             return canGo[UnityEngine.Random.Range(0, canGo.Count)];
         }
 
