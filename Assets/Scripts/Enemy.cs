@@ -13,8 +13,8 @@ public class Enemy : MonoBehaviour {
     private Player player;
     private AI ai;
 
-    float lastDx = 0;
-    float lastDy = 0;
+    float currentDx = 0;
+    float currentDy = 0;
 
     int currentX;
     int currentY;
@@ -26,17 +26,28 @@ public class Enemy : MonoBehaviour {
     }
 
     public Vector2 CurrentDirection() {
-        return new Vector2(lastDx, lastDy);
+        return new Vector2(currentDx, currentDy);
     }
 
     public bool CanGo(Vector2 direction) {
-        return !WouldCollide(currentX, currentY, direction.x, direction.y);
-    }
+        int x = (int)Mathf.Round(transform.position.x);
+        int y = (int)Mathf.Round(transform.position.y);
 
-    public bool IsAtNode() {
-        return board[currentX, currentY] != Board.CellType.WALL;//TODO fix this
+        int dx = (int)direction.x;
+        int dy = (int)direction.y;
+        if (dx == 0 && dy == -1) {
+            return (navigation[x, y] & Navigation.Directions.ENEMY_UP) != 0;
+        } else if (dx == 0 && dy == 1) {
+            return (navigation[x, y] & Navigation.Directions.ENEMY_DOWN) != 0;
+        } else if (dx == -1 && dy == 0) {
+            return (navigation[x, y] & Navigation.Directions.ENEMY_LEFT) != 0;
+        } else if (dx == 1 && dy == 0) {
+            return (navigation[x, y] & Navigation.Directions.ENEMY_RIGHT) != 0;
+        } else {
+            return (navigation[x, y] & Navigation.Directions.ENEMY_STAY) != 0;
+        }
     }
-
+    
     // Use this for initialization
     void Start() {
         board = FindObjectOfType<Board>();
@@ -54,125 +65,56 @@ public class Enemy : MonoBehaviour {
             Move();
         }
     }
-
+    
     void Move() {
-        //motion is defined in terms of the grid
-        currentX = (int)Mathf.Round(transform.position.x);
-        currentY = (int)Mathf.Round(transform.position.y);
-
-        //get AI input
-        Vector2 d = ai.GetDirection();
-        float dx = d.x;
-        float dy = d.y;
-
-        if (dx != 0 && dy != 0) {//contradictory motion, try to resolve
-            if (dx < dy) {//favor x if possible, it was more recently pressed
-                if (!WouldCollide(currentX, currentY, dx, 0)) {
-                    dy = 0;
-                } else {//favor y instead
-                    dx = 0;
-                }
-            } else {//favor y if possible, it was more recently pressed
-                if (!WouldCollide(currentX, currentY, 0, dy)) {
-                    dx = 0;
-                } else {//favor x instead
-                    dy = 0;
-                }
-            }
-        }
-
-        if (dx != 0 && dy != 0) {//still contradictory
-            if (dx < dy) {
-                dy = 0;
-            } else {
-                dx = 0;
-            }
-        }
-        if (WouldCollide(currentX, currentY, dx, dy) || (dx == 0 && dy == 0)) {
-            /*If input motion results in collision, or if there is no input motion, 
-             * revert to current motion*/
-            dx = lastDx;
-            dy = lastDy;
-        }
-        if (WouldCollide(currentX, currentY, dx, dy)) {//if still colliding, stop
-            dx = 0;
-            dy = 0;
-        }
-
-        SetAnimation(dx, dy);
+        Vector2 direction = ai.GetDirection();
+        int x = (int)Mathf.Round(transform.position.x);
+        int y = (int)Mathf.Round(transform.position.y);
+        SetAnimation(direction.x, direction.y);
 
         //update the current motion
-        lastDx = dx;
-        lastDy = dy;
+        currentDx = direction.x;
+        currentDy = direction.y;
 
         //compute next position of player according to current motion
-        int targetX = currentX;
-        int targetY = currentY;
+        int targetX = x;
+        int targetY = y;
 
-        if (dx > 0) {
+        if (direction.x > 0) {
             targetX++;
-        } else if (dx < 0) {
+        } else if (direction.x < 0) {
             targetX--;
         }
-        if (dy > 0) {
+        if (direction.y > 0) {
             targetY++;
-        } else if (dy < 0) {
+        } else if (direction.y < 0) {
             targetY--;
         }
 
         //compute actual motion toward next position
-        dx = targetX - transform.position.x;
-        dy = targetY - transform.position.y;
-        if (dx > .1) {
-            dx = 1;
-        } else if (dx < -.1) {
-            dx = -1;
+        float fdx = targetX - transform.position.x;
+        float fdy = targetY - transform.position.y;
+        if (fdx > .1) {
+            fdx = 1;
+        } else if (fdx < -.1) {
+            fdx = -1;
         }
-        if (dy > .1) {
-            dy = 1;
-        } else if (dy < -.1) {
-            dy = -1;
+        if (fdy > .1) {
+            fdy = 1;
+        } else if (fdy < -.1) {
+            fdy = -1;
         }
-
         //teleport to matching tunnel if at end of a tunnel
         if (board[targetX, targetY] == Board.CellType.TELEPORT) {
-            navigation.FindMatchingTeleport(targetX, targetY, out currentX, out currentY);
-            targetX = currentX;
-            targetY = currentY;
-            Debug.Log("Teleporting to " + targetX + ", " + targetY);
+            navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
+            targetX = x;
+            targetY = y;
+            //Debug.Log("Teleporting to " + targetX + ", " + targetY);
             transform.position = new Vector3(targetX, targetY, transform.position.z);
         }
-        transform.Translate(new Vector3(dx * speed * Time.deltaTime, dy * speed * Time.deltaTime, 0), Space.World);
-
+        transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
     }
 
-    //results meaningless if both dx and dy nonzero
-    bool WouldCollide(int currentX, int currentY, float dx, float dy) {
-        int x = currentX;
-        int y = currentY;
-        if (dx > 0) {
-            x++;
-        } else if (dx < 0) {
-            x--;
-        }
-        if (dy > 0) {
-            y++;
-        } else if (dy < 0) {
-            y--;
-        }
-        if (board[x,y] == Board.CellType.WALL || board[x,y] == Board.CellType.OUT_OF_BOUNDS) {
-            return true;
-        }
-
-        foreach (Enemy enemy in game.GetEnemies()) {
-            Vector2 p = enemy.CurrentPosition();
-            if (enemy != this && p.x == x && p.y == y) {
-                //Debug.Log("Enemy " + gameObject + " would collide with enemy " + enemy.gameObject);
-                return true;
-            }
-        }
-        return false;
-    }
     void SetAnimation(float dx, float dy) {
         //Animator a = GetComponent<Animator>();
         if (dx == 0 && dy == 0) {

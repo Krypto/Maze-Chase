@@ -11,22 +11,27 @@ public class RandomAI : MonoBehaviour, AI {
 
     public Vector2 GetDirection() {
         canGo.Clear();
-
+        for (int i = 0; i < directions.Length; i++) {
+            if (enemy.CanGo(directions[i])) {
+                canGo.Add(directions[i]);
+            }
+        }
         Vector2 d = enemy.CurrentDirection();
         if (d == Vector2.zero) {
-            for (int i = 0; i < directions.Length; i++) {
-                if (enemy.CanGo(directions[i])) {
-                    canGo.Add(directions[i]);
-                }
-            }
             return canGo[UnityEngine.Random.Range(0, canGo.Count)];
         }
-        if (enemy.IsAtNode() || UnityEngine.Random.value > .99f) {
+
+        Vector2 d1 = new Vector2(d.y, d.x);
+        Vector2 d2 = new Vector2(-d.y, -d.x);
+
+
+        if (enemy.CanGo(d1) || enemy.CanGo(d2) || UnityEngine.Random.value > .99f) {
+            canGo.Clear();
             for (int i = 0; i < directions.Length; i++) {
                 if (enemy.CanGo(directions[i]) && directions[i] != d && directions[i] != -d) {
                     canGo.Add(directions[i]);
                 }
-                if (canGo.Count == 0 || UnityEngine.Random.value > .99f ) {
+                if (canGo.Count == 0 || UnityEngine.Random.value > .99f) {
                     if (enemy.CanGo(directions[i]) && directions[i] != d) {
                         canGo.Add(directions[i]);
                     }
@@ -37,7 +42,7 @@ public class RandomAI : MonoBehaviour, AI {
                     }
                 }
             }
-            if (UnityEngine.Random.value > 0.5f || !canGo.Contains(d)) {
+            if (UnityEngine.Random.value > 0.75f || !canGo.Contains(d)) {
                 return canGo[UnityEngine.Random.Range(0, canGo.Count)];
             }
         }
