@@ -26,12 +26,29 @@ public class WaypointAI : MonoBehaviour, AI {
             Debug.Log("Waypoint grid created");
         }
 
+        if(Random.value > 0.995f) {
+            ResetWaypoint();
+        }
+
         Navigation.Pair p = navigation.DirectionToWaypoint(grid,
-                (int)Mathf.Round(enemy.transform.position.x),
-                (int)Mathf.Round(enemy.transform.position.y));
+                    (int)Mathf.Round(enemy.transform.position.x),
+                    (int)Mathf.Round(enemy.transform.position.y));
+
+        if (p.x == 0 && p.y == 0) {
+            ResetWaypoint();
+            p = navigation.DirectionToWaypoint(grid,
+                    (int)Mathf.Round(enemy.transform.position.x),
+                    (int)Mathf.Round(enemy.transform.position.y));
+        }
+
         return new Vector2(p.x, p.y);
     }
 
+    public void ResetWaypoint() {
+        grid.waypointX = (int)Mathf.Round(player.transform.position.x);
+        grid.waypointY = (int)Mathf.Round(player.transform.position.y);
+        Debug.Log("Waypoint grid recreated");
+    }
 
     public void SetEnemy(Enemy enemy) {
         this.enemy = enemy;
