@@ -86,6 +86,10 @@ public class Navigation : MonoBehaviour {
         for (int x = Board.minX; x <= Board.maxX; x++) {
             for (int y = Board.minY; y <= Board.maxY; y++) {
                 Directions flags = this[x, y];
+                Board.CellType t = board[x, y];
+                if (t == Board.CellType.WALL) {
+                    continue;
+                }
 
                 //can player go up?
                 if (y > Board.minY && (this[x, y - 1] & Directions.STAY) == Directions.STAY) {
@@ -257,6 +261,10 @@ public class Navigation : MonoBehaviour {
         if (d <= bestDistance) {
             bestDistance = d;
             bestDirection = direction;
+        }
+
+        if (bestDistance > 1000) {
+            return new Pair(0, 0);
         }
 
         return bestDirection;

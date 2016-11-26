@@ -59,33 +59,38 @@ public class WaypointGrid : MonoBehaviour {
             boundary.Enqueue(t);
 
             while (boundary.Count > 0) {
+                //can we get to t from q in one step? 
+
                 t = boundary.Dequeue();
-                if ((navigation[t.x, t.y] & Navigation.Directions.UP) != 0) {
-                    Pair q = new Pair(t.x, t.y - 1);
+                Pair q = new Pair(t.x, t.y - 1);
+                if (t.y > Board.minY && (navigation[q.x, q.y] & Navigation.Directions.DOWN) != 0) {
                     if (!found.Contains(q)) {
                         boundary.Enqueue(q);
                         found.Add(q);
                         this[q.x, q.y] = this[t.x, t.y] + 1;
                     }
                 }
-                if ((navigation[t.x, t.y] & Navigation.Directions.DOWN) != 0) {
-                    Pair q = new Pair(t.x, t.y + 1);
+
+                q = new Pair(t.x, t.y + 1);
+                if (t.y < Board.maxY && (navigation[q.x, q.y] & Navigation.Directions.UP) != 0) {
                     if (!found.Contains(q)) {
                         boundary.Enqueue(q);
                         found.Add(q);
                         this[q.x, q.y] = this[t.x, t.y] + 1;
                     }
                 }
-                if ((navigation[t.x, t.y] & Navigation.Directions.LEFT) != 0) {
-                    Pair q = new Pair(t.x - 1, t.y);
+
+                q = new Pair(t.x - 1, t.y);
+                if (t.x > Board.minX && (navigation[q.x, q.y] & Navigation.Directions.RIGHT) != 0) {
                     if (!found.Contains(q)) {
                         boundary.Enqueue(q);
                         found.Add(q);
                         this[q.x, q.y] = this[t.x, t.y] + 1;
                     }
                 }
-                if ((navigation[t.x, t.y] & Navigation.Directions.RIGHT) != 0) {
-                    Pair q = new Pair(t.x + 1, t.y);
+
+                q = new Pair(t.x + 1, t.y);
+                if (t.x < Board.maxX && (navigation[q.x, q.y] & Navigation.Directions.LEFT) != 0) {
                     if (!found.Contains(q)) {
                         boundary.Enqueue(q);
                         found.Add(q);
