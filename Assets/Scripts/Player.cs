@@ -135,6 +135,7 @@ public class Player : MonoBehaviour {
         Animator a = GetComponent<Animator>();
         if (dx == 0 && dy == 0) {
             a.SetBool("Walking", false);
+            transform.localEulerAngles = new Vector3(0, 0, 0);
         } else {
             a.SetBool("Walking", true);
             //point rat in proper direction

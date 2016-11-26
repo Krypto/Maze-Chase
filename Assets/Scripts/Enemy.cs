@@ -7,11 +7,14 @@ public class Enemy : MonoBehaviour {
     public float speed = 10f;
     public GameObject aiPrefab;
 
+    public float initialTimeToAwake = 1f;
+
     private Game game;
     private Board board;
     private Navigation navigation;
     private Player player;
     private AI ai;
+    float timeToAwake;
 
     float currentDx = 0;
     float currentDy = 0;
@@ -49,20 +52,32 @@ public class Enemy : MonoBehaviour {
         player = FindObjectOfType<Player>();
         ai = (Instantiate(aiPrefab, transform.parent) as GameObject).GetComponent<AI>();
         ai.SetEnemy(this);
+        timeToAwake = initialTimeToAwake;
         Pause();
     }
 
     // Update is called once per frame
     void Update() {
         if (isPlaying) {
-            Move();
+            if (timeToAwake > 0) {
+                timeToAwake -= Time.deltaTime;
+            } else {
+                Move();
+            }
         }
+    }
+
+    public void Sleep() {
+        timeToAwake = initialTimeToAwake;
+        SetAnimation(0, 0);
     }
 
     public void Die() {
         for (int i = 0; i < game.GetEnemies().Length; i++) {
             if (this == game.GetEnemies()[i]) {
                 transform.position = board.GetEnemyPositions()[i];
+                SetAnimation(0, 0);
+                timeToAwake = initialTimeToAwake;
                 break;
             }
         }
@@ -119,7 +134,7 @@ public class Enemy : MonoBehaviour {
 
     void SetAnimation(float dx, float dy) {
         Animator a = GetComponent<Animator>();
-        if (dx == 0 && dy == 0) {
+        if ((dx == 0 && dy == 0) || !isPlaying || timeToAwake > 0) {
             a.SetBool("Walking", false);
         } else {
             a.SetBool("Walking", true);
