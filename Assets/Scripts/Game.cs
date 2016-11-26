@@ -7,6 +7,13 @@ public class Game : MonoBehaviour {
     public ScoreDisplay highScoreDisplay;
     public int initialNumLives = 3;
 
+    public Color[] enemyColors = {
+        Color.green,
+        Color.magenta,
+        Color.cyan,
+        Color.blue
+    };
+
     public float startGameSequenceTime = 4f;
     public float SpawnPlayerTime = 2f;
     public float deathSequenceTime = 2f;
@@ -123,6 +130,7 @@ public class Game : MonoBehaviour {
             enemies[i] = (Instantiate(board.GetCellPrefab(Board.CellType.ENEMY),
             board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent<Enemy>();
             enemies[i].transform.position = p;
+            enemies[i].GetComponent<SpriteRenderer>().color = enemyColors[i];
             i++;         
         }
     }

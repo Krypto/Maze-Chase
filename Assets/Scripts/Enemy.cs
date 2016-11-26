@@ -109,20 +109,20 @@ public class Enemy : MonoBehaviour {
     }
 
     void SetAnimation(float dx, float dy) {
-        //Animator a = GetComponent<Animator>();
+        Animator a = GetComponent<Animator>();
         if (dx == 0 && dy == 0) {
-            // a.SetBool("Walking", false);
+            a.SetBool("Walking", false);
         } else {
-            // a.SetBool("Walking", true);
+            a.SetBool("Walking", true);
             //point cat in proper direction
             if (dy > 0) {
-                transform.localEulerAngles = new Vector3(0, 0, 90f);
+                transform.localEulerAngles = new Vector3(0, 0, 0f);
             } else if (dy < 0) {
-                transform.localEulerAngles = new Vector3(0, 0, -90f);
-            } else if (dx > 0) {
-                transform.localEulerAngles = new Vector3(0, 0, 0);
-            } else {
                 transform.localEulerAngles = new Vector3(0, 0, 180f);
+            } else if (dx > 0) {
+                transform.localEulerAngles = new Vector3(0, 0, -90f);
+            } else {
+                transform.localEulerAngles = new Vector3(0, 0, 90f);
             }
         }
     }

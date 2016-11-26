@@ -125,6 +125,7 @@ public class Navigation : MonoBehaviour {
         }
 
         //Deal with one-way enemy entrance walls
+        //breadth-first search algorithm
 
         //all cells reachible from enemies go here
         HashSet<Pair> reachible = new HashSet<Pair>();
