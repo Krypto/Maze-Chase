@@ -41,11 +41,16 @@ public class PlayerController : MonoBehaviour {
         float dy = CrossPlatformInputManager.GetAxis("Vertical");
         float idx = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
         float idy = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+        if (Mathf.Abs(dx) > Mathf.Abs(dy)) {
+            dy = 0;
+        }else {
+            dx = 0;
+        }
         Vector2 d = new Vector2(idx, idy);
         if (canGo.Contains(d)) {
             return d;
         }
-        if (dx != 0 && Mathf.Abs(dx) < Mathf.Abs(dy)) {
+        if (dx != 0 && Mathf.Abs(dx) > Mathf.Abs(dy)) {
             d = new Vector2(idx, 0);
             if (canGo.Contains(d)) {
                 return d;
