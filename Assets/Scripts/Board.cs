@@ -115,6 +115,12 @@ public class Board : MonoBehaviour {
                     case CellType.WALL:
                     case CellType.ENTRANCE:
                         Show(x, y, this[x, y]);
+                        if (this[x, y] == CellType.WALL && this[x - 1, y] == CellType.WALL) {
+                            Show(x - 0.5f, y, 1, wallBox);
+                        }
+                        if (this[x, y] == CellType.WALL && this[x, y - 1] == CellType.WALL) {
+                            Show(x, y - 0.5f, 1, wallBox);
+                        }
                         break;
                     case CellType.PLAYER:
                         playerPosition = new Vector3(x, y, 0);
@@ -185,6 +191,11 @@ public class Board : MonoBehaviour {
         sprite.transform.position = new Vector2(x, y);
     }
 
+    void Show(float x, float y, float z, GameObject t) {
+        GameObject sprite = Instantiate(t, transform) as GameObject;
+        sprite.transform.position = new Vector3(x, y, z);
+    }
+
     // Use this for initialization
     void Start() {
         boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
@@ -196,8 +207,8 @@ public class Board : MonoBehaviour {
                 this[x, y] = CellType.EMPTY;
             }
         }
-        foreach(GameObject holder in cellParents) {
-            foreach(Transform child in holder.transform) {
+        foreach (GameObject holder in cellParents) {
+            foreach (Transform child in holder.transform) {
                 Destroy(child.gameObject);
             }
         }
