@@ -153,7 +153,11 @@ public class Player : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collider) {
         Enemy enemy = collider.gameObject.GetComponent<Enemy>();
         if (enemy) {
-            Die();
+            if (attackModeTimeRemaining > 0) {
+                enemy.Die();
+            } else {
+                Die();
+            }
         }
     }
 

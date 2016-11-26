@@ -17,7 +17,7 @@ public class Enemy : MonoBehaviour {
     float currentDy = 0;
 
     bool isPlaying = true;
-    
+
     public Vector2 CurrentDirection() {
         return new Vector2(currentDx, currentDy);
     }
@@ -40,7 +40,7 @@ public class Enemy : MonoBehaviour {
             return (navigation[x, y] & Navigation.Directions.STAY) != 0;
         }
     }
-    
+
     // Use this for initialization
     void Start() {
         board = FindObjectOfType<Board>();
@@ -50,7 +50,7 @@ public class Enemy : MonoBehaviour {
         ai = (Instantiate(aiPrefab, transform.parent) as GameObject).GetComponent<AI>();
         ai.SetEnemy(this);
         Pause();
-    }   
+    }
 
     // Update is called once per frame
     void Update() {
@@ -58,7 +58,16 @@ public class Enemy : MonoBehaviour {
             Move();
         }
     }
-    
+
+    public void Die() {
+        for (int i = 0; i < game.GetEnemies().Length; i++) {
+            if (this == game.GetEnemies()[i]) {
+                transform.position = board.GetEnemyPositions()[i];
+                break;
+            }
+        }
+    }
+
     void Move() {
         Vector2 direction = ai.GetDirection();
         int x = (int)Mathf.Round(transform.position.x);
