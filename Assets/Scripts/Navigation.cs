@@ -6,6 +6,7 @@ using System;
 
 
 public class Navigation : MonoBehaviour {
+    public GameObject waypointGridPrefab;
 
     public struct Pair {
         public int x;
@@ -25,11 +26,6 @@ public class Navigation : MonoBehaviour {
         LEFT = 4,
         RIGHT = 8,
         STAY = 16,
-        ENEMY_UP = 32,
-        ENEMY_DOWN = 64,
-        ENEMY_LEFT = 128,
-        ENEMY_RIGHT = 256,
-        ENEMY_STAY = 512
     }
 
     public Directions this[int x, int y] {
@@ -75,12 +71,12 @@ public class Navigation : MonoBehaviour {
                 Directions flags = Directions.None;
                 Board.CellType t = board[x, y];
                 //can player stay here?
-                if (t != Board.CellType.WALL && t != Board.CellType.ENEMY_ENTRANCE && t != Board.CellType.OUT_OF_BOUNDS) {
+                if (t != Board.CellType.WALL && t != Board.CellType.ENTRANCE && t != Board.CellType.OUT_OF_BOUNDS) {
                     flags |= Directions.STAY;
                 }
                 //can enemy stay here?
-                if (t != Board.CellType.WALL && t != Board.CellType.ENEMY_ENTRANCE && t != Board.CellType.OUT_OF_BOUNDS) {
-                    flags |= Directions.ENEMY_STAY;
+                if (t != Board.CellType.WALL && t != Board.CellType.ENTRANCE && t != Board.CellType.OUT_OF_BOUNDS) {
+                    flags |= Directions.STAY;
                 }
                 this[x, y] = flags;
             }
@@ -109,20 +105,20 @@ public class Navigation : MonoBehaviour {
                 }
 
                 //can enemy go up?
-                if (y > Board.minY && (this[x, y - 1] & Directions.ENEMY_STAY) == Directions.ENEMY_STAY) {
-                    flags |= Directions.ENEMY_UP;
+                if (y > Board.minY && (this[x, y - 1] & Directions.STAY) == Directions.STAY) {
+                    flags |= Directions.UP;
                 }
                 //can enemy go down?
-                if (y < Board.maxY && (this[x, y + 1] & Directions.ENEMY_STAY) == Directions.ENEMY_STAY) {
-                    flags |= Directions.ENEMY_DOWN;
+                if (y < Board.maxY && (this[x, y + 1] & Directions.STAY) == Directions.STAY) {
+                    flags |= Directions.DOWN;
                 }
                 //can enemy go left?
-                if (x > Board.minX && (this[x - 1, y] & Directions.ENEMY_STAY) == Directions.ENEMY_STAY) {
-                    flags |= Directions.ENEMY_LEFT;
+                if (x > Board.minX && (this[x - 1, y] & Directions.STAY) == Directions.STAY) {
+                    flags |= Directions.LEFT;
                 }
                 //can enemy go right?
-                if (x < Board.maxX && (this[x + 1, y] & Directions.ENEMY_STAY) == Directions.ENEMY_STAY) {
-                    flags |= Directions.ENEMY_RIGHT;
+                if (x < Board.maxX && (this[x + 1, y] & Directions.STAY) == Directions.STAY) {
+                    flags |= Directions.RIGHT;
                 }
 
                 this[x, y] = flags;
@@ -153,7 +149,7 @@ public class Navigation : MonoBehaviour {
             //add adjacent cells that are reachible from the chosen cell
             //add it to the reachible set, and if it hasn't already been
             //checked, add it to the boundary as well
-            if ((d & Directions.ENEMY_UP) != 0) {
+            if ((d & Directions.UP) != 0) {
                 Pair q = new Pair();
                 q.x = p.x;
                 q.y = p.y - 1;
@@ -161,7 +157,7 @@ public class Navigation : MonoBehaviour {
                     boundary.Enqueue(q);
                 }
             }
-            if ((d & Directions.ENEMY_DOWN) != 0) {
+            if ((d & Directions.DOWN) != 0) {
                 Pair q = new Pair();
                 q.x = p.x;
                 q.y = p.y + 1;
@@ -169,7 +165,7 @@ public class Navigation : MonoBehaviour {
                     boundary.Enqueue(q);
                 }
             }
-            if ((d & Directions.ENEMY_LEFT) != 0) {
+            if ((d & Directions.LEFT) != 0) {
                 Pair q = new Pair();
                 q.x = p.x - 1;
                 q.y = p.y;
@@ -177,7 +173,7 @@ public class Navigation : MonoBehaviour {
                     boundary.Enqueue(q);
                 }
             }
-            if ((d & Directions.ENEMY_RIGHT) != 0) {
+            if ((d & Directions.RIGHT) != 0) {
                 Pair q = new Pair();
                 q.x = p.x + 1;
                 q.y = p.y;
@@ -192,18 +188,18 @@ public class Navigation : MonoBehaviour {
         //the enemy entrance to be reachible from them
         //as well as the next cell continuing in the same direction. 
         foreach (Pair p in reachible) {
-            if (board[p.x, p.y - 1] == Board.CellType.ENEMY_ENTRANCE) {
-                this[p.x, p.y] = Directions.ENEMY_UP;
-                this[p.x, p.y - 1] = Directions.ENEMY_UP;
-            } else if (board[p.x, p.y + 1] == Board.CellType.ENEMY_ENTRANCE) {
-                this[p.x, p.y] = Directions.ENEMY_DOWN;
-                this[p.x, p.y + 1] = Directions.ENEMY_DOWN;
-            } else if (board[p.x - 1, p.y] == Board.CellType.ENEMY_ENTRANCE) {
-                this[p.x, p.y] = Directions.ENEMY_LEFT;
-                this[p.x - 1, p.y] = Directions.ENEMY_LEFT;
-            } else if (board[p.x + 1, p.y] == Board.CellType.ENEMY_ENTRANCE) {
-                this[p.x, p.y] = Directions.ENEMY_RIGHT;
-                this[p.x + 1, p.y] = Directions.ENEMY_RIGHT;
+            if (board[p.x, p.y - 1] == Board.CellType.ENTRANCE) {
+                this[p.x, p.y] = Directions.UP;
+                this[p.x, p.y - 1] = Directions.UP;
+            } else if (board[p.x, p.y + 1] == Board.CellType.ENTRANCE) {
+                this[p.x, p.y] = Directions.DOWN;
+                this[p.x, p.y + 1] = Directions.DOWN;
+            } else if (board[p.x - 1, p.y] == Board.CellType.ENTRANCE) {
+                this[p.x, p.y] = Directions.LEFT;
+                this[p.x - 1, p.y] = Directions.LEFT;
+            } else if (board[p.x + 1, p.y] == Board.CellType.ENTRANCE) {
+                this[p.x, p.y] = Directions.RIGHT;
+                this[p.x + 1, p.y] = Directions.RIGHT;
             }
         }
 
@@ -225,15 +221,15 @@ public class Navigation : MonoBehaviour {
         }
     }
 
-    public Pair DirectionToWaypoint(int[,] waypointGrid, int startX, int startY) {
-        int x = startX - Board.minX;
-        int y = startY - Board.minY;
+    public Pair DirectionToWaypoint(WaypointGrid grid, int startX, int startY) {
+        int x = startX;
+        int y = startY;
         Pair bestDirection = new Pair(0, 0);
-        int bestDistance = waypointGrid[x, y];//it's possible best bet is to stay
+        int bestDistance = grid[x, y];//it's possible best bet is to stay
 
         //first try up
         Pair direction = new Pair(0, -1);
-        int d = waypointGrid[x + direction.x, y + direction.y];
+        int d = grid[x + direction.x, y + direction.y];
         if (d <= bestDistance) {
             bestDistance = d;
             bestDirection = direction;
@@ -241,7 +237,7 @@ public class Navigation : MonoBehaviour {
 
         //down
         direction = new Pair(0, 1);
-        d = waypointGrid[x + direction.x, y + direction.y];
+        d = grid[x + direction.x, y + direction.y];
         if (d <= bestDistance) {
             bestDistance = d;
             bestDirection = direction;
@@ -249,7 +245,7 @@ public class Navigation : MonoBehaviour {
 
         //left
         direction = new Pair(-1, 0);
-        d = waypointGrid[x + direction.x, y + direction.y];
+        d = grid[x + direction.x, y + direction.y];
         if (d <= bestDistance) {
             bestDistance = d;
             bestDirection = direction;
@@ -257,80 +253,13 @@ public class Navigation : MonoBehaviour {
 
         //right
         direction = new Pair(1, 0);
-        d = waypointGrid[x + direction.x, y + direction.y];
+        d = grid[x + direction.x, y + direction.y];
         if (d <= bestDistance) {
             bestDistance = d;
             bestDirection = direction;
         }
 
         return bestDirection;
-    }
-
-    /*
-     * Given target coordinates, return a grid whose entries are the shortest distance to the target, or int.MaxValue if the target cannot be reached from the point.
-     * 
-     * Then, an entity trying to reach a target by the shortest way possible need only check upward, downward, leftward, and rightward for the least distance value.  When the distance value of the current location is 0, the entity has arrived.
-     */
-    public int[,] MakeWaypointGrid(int waypointX, int waypointY) {
-        int mx = Board.maxX - Board.minX + 1;
-        int my = Board.maxY - Board.minY + 1;
-        int tx = waypointX - Board.minX;
-        int ty = waypointY - Board.minY;
-        int[,] grid = new int[mx, my];
-        for (int i = 0; i < mx; i++) {
-            for (int j = 0; j < my; j++) {
-                grid[i, j] = int.MaxValue;
-            }
-        }
-        if ((this[waypointX, waypointY] & Directions.ENEMY_STAY) == 0) {
-            //can't get there from anywhere
-            Debug.LogWarning("Target is unreachible");
-            return grid;
-        }
-        grid[tx, ty] = 0;//already there
-        HashSet<Pair> found = new HashSet<Pair>();
-        Queue<Pair> boundary = new Queue<Pair>();
-        Pair t = new Pair(tx, ty);
-        found.Add(t);
-        boundary.Enqueue(t);
-
-        while (boundary.Count > 0) {
-            t = boundary.Dequeue();
-            if ((this[t.x, t.y] & Directions.ENEMY_UP) != 0) {
-                Pair q = new Pair(t.x, t.y - 1);
-                if (!found.Contains(q)) {
-                    boundary.Enqueue(q);
-                    found.Add(q);
-                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
-                }
-            }
-            if ((this[t.x, t.y] & Directions.ENEMY_DOWN) != 0) {
-                Pair q = new Pair(t.x, t.y + 1);
-                if (!found.Contains(q)) {
-                    boundary.Enqueue(q);
-                    found.Add(q);
-                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
-                }
-            }
-            if ((this[t.x, t.y] & Directions.ENEMY_LEFT) != 0) {
-                Pair q = new Pair(t.x - 1, t.y);
-                if (!found.Contains(q)) {
-                    boundary.Enqueue(q);
-                    found.Add(q);
-                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
-                }
-            }
-            if ((this[t.x, t.y] & Directions.ENEMY_RIGHT) != 0) {
-                Pair q = new Pair(t.x + 1, t.y);
-                if (!found.Contains(q)) {
-                    boundary.Enqueue(q);
-                    found.Add(q);
-                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
-                }
-            }
-        }
-
-        return grid;
     }
 
 }

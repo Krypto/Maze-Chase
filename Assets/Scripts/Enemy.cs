@@ -29,15 +29,15 @@ public class Enemy : MonoBehaviour {
         int dx = (int)direction.x;
         int dy = (int)direction.y;
         if (dx == 0 && dy == -1) {
-            return (navigation[x, y] & Navigation.Directions.ENEMY_UP) != 0;
+            return (navigation[x, y] & Navigation.Directions.UP) != 0;
         } else if (dx == 0 && dy == 1) {
-            return (navigation[x, y] & Navigation.Directions.ENEMY_DOWN) != 0;
+            return (navigation[x, y] & Navigation.Directions.DOWN) != 0;
         } else if (dx == -1 && dy == 0) {
-            return (navigation[x, y] & Navigation.Directions.ENEMY_LEFT) != 0;
+            return (navigation[x, y] & Navigation.Directions.LEFT) != 0;
         } else if (dx == 1 && dy == 0) {
-            return (navigation[x, y] & Navigation.Directions.ENEMY_RIGHT) != 0;
+            return (navigation[x, y] & Navigation.Directions.RIGHT) != 0;
         } else {
-            return (navigation[x, y] & Navigation.Directions.ENEMY_STAY) != 0;
+            return (navigation[x, y] & Navigation.Directions.STAY) != 0;
         }
     }
     

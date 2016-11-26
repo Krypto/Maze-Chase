@@ -17,7 +17,7 @@ public class Board : MonoBehaviour {
         ENEMY = 3,
         BONUS_PICKUP = 4,
         BIG_DOT = 5,
-        ENEMY_ENTRANCE = 6,
+        ENTRANCE = 6,
         TELEPORT = 7,
         SCORE_DISPLAY = 8,
         REMAINING_LIFE = 9,
@@ -113,7 +113,7 @@ public class Board : MonoBehaviour {
                     case CellType.DOT:
                     case CellType.BIG_DOT:
                     case CellType.WALL:
-                    case CellType.ENEMY_ENTRANCE:
+                    case CellType.ENTRANCE:
                         Show(x, y, this[x, y]);
                         break;
                     case CellType.PLAYER:

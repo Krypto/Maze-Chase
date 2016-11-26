@@ -6,6 +6,8 @@ public class Game : MonoBehaviour {
     public ScoreDisplay scoreDisplay;
     public ScoreDisplay highScoreDisplay;
     public int initialNumLives = 3;
+    public GameObject[] EnemyPrefab;
+
 
     public Color[] enemyColors = {
         Color.green,
@@ -42,7 +44,7 @@ public class Game : MonoBehaviour {
     public void PausePlay() {
         _gameIsPlaying = false;
         player.Pause();
-        foreach(Enemy enemy in enemies) {
+        foreach (Enemy enemy in enemies) {
             enemy.Pause();
         }
     }
@@ -126,12 +128,13 @@ public class Game : MonoBehaviour {
     void SpawnEnemies() {
         int i = 0;
         enemies = new Enemy[board.GetEnemyPositions().Count];
-        foreach (Vector3 p in board.GetEnemyPositions()) {          
-            enemies[i] = (Instantiate(board.GetCellPrefab(Board.CellType.ENEMY),
-            board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent<Enemy>();
+        foreach (Vector3 p in board.GetEnemyPositions()) {
+            enemies[i] = (Instantiate(EnemyPrefab[i],
+board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent<Enemy>();
+
             enemies[i].transform.position = p;
             enemies[i].GetComponent<SpriteRenderer>().color = enemyColors[i];
-            i++;         
+            i++;
         }
     }
 
