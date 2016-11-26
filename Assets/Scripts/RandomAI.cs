@@ -4,38 +4,63 @@ using System.Collections.Generic;
 
 public class RandomAI : MonoBehaviour, AI {
     private Enemy enemy;
+    private Game game;
+
+
     Vector2[] directions = { new Vector2(1, 0), new Vector2(0, 1),
         new Vector2(-1, 0), new Vector2(0, -1) };
 
     List<Vector2> canGo = new List<Vector2>();
 
     public Vector2 GetDirection() {
-        //canGo.Clear();
-        //for (int i = 0; i < directions.Length; i++) {
-        //    if (enemy.CanGo(directions[i])) {
-        //        canGo.Add(directions[i]);
-        //    }
-        //}
-        //if (canGo.Count == 0) {
-        //    Debug.LogError("enemy is stuck!");
-        //    return Vector2.zero;
-        //}
-        //Vector2 d = enemy.CurrentDirection();
+        if (game == null) {
+            game = FindObjectOfType<Game>();
+        }
 
-        //if (d == Vector2.zero || !enemy.CanGo(d)) {
-        //    return canGo[UnityEngine.Random.Range(0, canGo.Count)];
-        //}
+        canGo.Clear();
+        for (int i = 0; i < directions.Length; i++) {
+            if (enemy.CanGo(directions[i])) {
+                canGo.Add(directions[i]);
+            }
+        }
+        if (canGo.Count == 0) {
+            Debug.LogError("enemy is stuck!");
+            return Vector2.zero;
+        }
+        Vector2 d = enemy.CurrentDirection();
 
-        //Vector2 d1 = new Vector2(d.y, d.x);
-        //Vector2 d2 = new Vector2(-d.y, -d.x);
+        if (d == Vector2.zero || !enemy.CanGo(d) || WouldCollide(d)) {
+            Vector2 dd =  canGo[UnityEngine.Random.Range(0, canGo.Count)];
+            if (WouldCollide(dd)) {
+                dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+            }
+            if (WouldCollide(dd)) {
+                dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+            }
+            if (!WouldCollide(dd)) {
+                return dd;
+            }
+        }
 
-        //if ((enemy.CanGo(d1) || enemy.CanGo(d2)) && Random.value > .95f) {
-        //    return canGo[UnityEngine.Random.Range(0, canGo.Count)];
-        //}
+        Vector2 d1 = new Vector2(d.y, d.x);
+        Vector2 d2 = new Vector2(-d.y, -d.x);
 
-        //if (enemy.CanGo(d)) {
-        //    return d;
-        //}
+        if ((enemy.CanGo(d1) || enemy.CanGo(d2)) && Random.value > .95f) {
+            Vector2 dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+            if (WouldCollide(dd)) {
+                dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+            }
+            if (WouldCollide(dd)) {
+                dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+            }
+            if (!WouldCollide(dd)) {
+                return dd;
+            }
+        }
+
+        if (enemy.CanGo(d) && !WouldCollide(d)) {
+            return d;
+        }
         return Vector2.zero;
     }
 
@@ -44,5 +69,22 @@ public class RandomAI : MonoBehaviour, AI {
         this.enemy = enemy;
     }
 
+    bool WouldCollide(Vector2 d) {
+        int dx = (int)Mathf.Round(d.x);
+        int dy = (int)Mathf.Round(d.y);
+        int x = (int)Mathf.Round(enemy.transform.position.x) + dx;
+        int y = (int)Mathf.Round(enemy.transform.position.y) + dy;
+        foreach (Enemy e in game.GetEnemies()) {
+            if (e != enemy) {
+                int ex = (int)Mathf.Round(e.transform.position.x);
+                int ey = (int)Mathf.Round(e.transform.position.y);
+                if (ex == x && ey == y) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
 }
