@@ -162,6 +162,7 @@ public class Player : MonoBehaviour {
     }
 
     public void Pause() {
+        SetAnimation(0, 0);
         playing = false;
     }
 

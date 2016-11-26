@@ -129,6 +129,7 @@ public class Enemy : MonoBehaviour {
 
     public void Pause() {
         isPlaying = false;
+        SetAnimation(0, 0);
     }
 
     public void Resume() {

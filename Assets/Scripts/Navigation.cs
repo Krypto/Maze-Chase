@@ -7,9 +7,14 @@ using System;
 
 public class Navigation : MonoBehaviour {
 
-    struct Pair {
+    public struct Pair {
         public int x;
         public int y;
+
+        public Pair(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     [Flags]
@@ -219,4 +224,113 @@ public class Navigation : MonoBehaviour {
             return 0;
         }
     }
+
+    public Pair DirectionToWaypoint(int[,] waypointGrid, int startX, int startY) {
+        int x = startX - Board.minX;
+        int y = startY - Board.minY;
+        Pair bestDirection = new Pair(0, 0);
+        int bestDistance = waypointGrid[x, y];//it's possible best bet is to stay
+
+        //first try up
+        Pair direction = new Pair(0, -1);
+        int d = waypointGrid[x + direction.x, y + direction.y];
+        if (d <= bestDistance) {
+            bestDistance = d;
+            bestDirection = direction;
+        }
+
+        //down
+        direction = new Pair(0, 1);
+        d = waypointGrid[x + direction.x, y + direction.y];
+        if (d <= bestDistance) {
+            bestDistance = d;
+            bestDirection = direction;
+        }
+
+        //left
+        direction = new Pair(-1, 0);
+        d = waypointGrid[x + direction.x, y + direction.y];
+        if (d <= bestDistance) {
+            bestDistance = d;
+            bestDirection = direction;
+        }
+
+        //right
+        direction = new Pair(1, 0);
+        d = waypointGrid[x + direction.x, y + direction.y];
+        if (d <= bestDistance) {
+            bestDistance = d;
+            bestDirection = direction;
+        }
+
+        return bestDirection;
+    }
+
+    /*
+     * Given target coordinates, return a grid whose entries are the shortest distance to the target, or int.MaxValue if the target cannot be reached from the point.
+     * 
+     * Then, an entity trying to reach a target by the shortest way possible need only check upward, downward, leftward, and rightward for the least distance value.  When the distance value of the current location is 0, the entity has arrived.
+     */
+    public int[,] MakeWaypointGrid(int waypointX, int waypointY) {
+        int mx = Board.maxX - Board.minX + 1;
+        int my = Board.maxY - Board.minY + 1;
+        int tx = waypointX - Board.minX;
+        int ty = waypointY - Board.minY;
+        int[,] grid = new int[mx, my];
+        for (int i = 0; i < mx; i++) {
+            for (int j = 0; j < my; j++) {
+                grid[i, j] = int.MaxValue;
+            }
+        }
+        if ((this[waypointX, waypointY] & Directions.ENEMY_STAY) == 0) {
+            //can't get there from anywhere
+            Debug.LogWarning("Target is unreachible");
+            return grid;
+        }
+        grid[tx, ty] = 0;//already there
+        HashSet<Pair> found = new HashSet<Pair>();
+        Queue<Pair> boundary = new Queue<Pair>();
+        Pair t = new Pair(tx, ty);
+        found.Add(t);
+        boundary.Enqueue(t);
+
+        while (boundary.Count > 0) {
+            t = boundary.Dequeue();
+            if ((this[t.x, t.y] & Directions.ENEMY_UP) != 0) {
+                Pair q = new Pair(t.x, t.y - 1);
+                if (!found.Contains(q)) {
+                    boundary.Enqueue(q);
+                    found.Add(q);
+                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
+                }
+            }
+            if ((this[t.x, t.y] & Directions.ENEMY_DOWN) != 0) {
+                Pair q = new Pair(t.x, t.y + 1);
+                if (!found.Contains(q)) {
+                    boundary.Enqueue(q);
+                    found.Add(q);
+                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
+                }
+            }
+            if ((this[t.x, t.y] & Directions.ENEMY_LEFT) != 0) {
+                Pair q = new Pair(t.x - 1, t.y);
+                if (!found.Contains(q)) {
+                    boundary.Enqueue(q);
+                    found.Add(q);
+                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
+                }
+            }
+            if ((this[t.x, t.y] & Directions.ENEMY_RIGHT) != 0) {
+                Pair q = new Pair(t.x + 1, t.y);
+                if (!found.Contains(q)) {
+                    boundary.Enqueue(q);
+                    found.Add(q);
+                    grid[q.x, q.y] = grid[t.x, t.y] + 1;
+                }
+            }
+        }
+
+        return grid;
+    }
+
 }
