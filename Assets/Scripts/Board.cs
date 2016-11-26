@@ -115,11 +115,13 @@ public class Board : MonoBehaviour {
                     case CellType.WALL:
                     case CellType.ENTRANCE:
                         Show(x, y, this[x, y]);
+
+                        //make walls continuous
                         if (this[x, y] == CellType.WALL && this[x - 1, y] == CellType.WALL) {
-                            Show(x - 0.5f, y, 1, wallBox);
+                            Show(x - 0.5f, y, -6, wallBox);
                         }
                         if (this[x, y] == CellType.WALL && this[x, y - 1] == CellType.WALL) {
-                            Show(x, y - 0.5f, 1, wallBox);
+                            Show(x, y - 0.5f, -6, wallBox);
                         }
                         break;
                     case CellType.PLAYER:

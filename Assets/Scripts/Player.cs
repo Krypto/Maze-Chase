@@ -5,11 +5,13 @@ using UnityStandardAssets.CrossPlatformInput;
 public class Player : MonoBehaviour {
     public float speed = 10f;
     public float attackModeDuration = 10f;
+    public int initialEnemyScore = 200;
 
     private Board board;
     private Navigation navigation;
     private Game game;
     private PlayerController controller;
+    private int enemyScore;
 
     float currentDx = 0;
     float currentDy = 0;
@@ -18,6 +20,7 @@ public class Player : MonoBehaviour {
     bool playing = false;
 
     private void Start() {
+        enemyScore = 200;
         game = FindObjectOfType<Game>();
         board = FindObjectOfType<Board>();
         navigation = FindObjectOfType<Navigation>();
@@ -68,6 +71,7 @@ public class Player : MonoBehaviour {
     }
 
     public void EndAttackMode() {
+        enemyScore = initialEnemyScore;
         attackModeTimeRemaining = 0;
         transform.localScale = new Vector3(1, 1, 1);
     }
@@ -155,6 +159,8 @@ public class Player : MonoBehaviour {
         Enemy enemy = collider.gameObject.GetComponent<Enemy>();
         if (enemy) {
             if (attackModeTimeRemaining > 0) {
+                game.scoreDisplay.score += enemyScore;
+                enemyScore *= 2;
                 enemy.Die();
             } else {
                 Die();
