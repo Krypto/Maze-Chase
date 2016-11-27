@@ -69,6 +69,8 @@ public class Board : MonoBehaviour {
     List<Vector3> teleports = new List<Vector3>();
     Texture2D boardDesignTexture;
 
+    public Texture2D[] boards;
+
     public GameObject GetCellPrefab(CellType t) {
         return cellPrefabs[(int)t];
     }
@@ -195,7 +197,7 @@ public class Board : MonoBehaviour {
     }
 
     void Show(float x, float y, float z, GameObject t) {
-        GameObject sprite = Instantiate(t, transform) as GameObject;
+        GameObject sprite = Instantiate(t, cellParents[(int)CellType.WALL].transform) as GameObject;
         sprite.transform.position = new Vector3(x, y, z);
     }
 
@@ -217,10 +219,10 @@ public class Board : MonoBehaviour {
         foreach (Transform t in cellParents[(int)CellType.DOT].transform) {
             countDots++;
             return;
-        }      
+        }
     }
 
-   public bool HasDots() {
+    public bool HasDots() {
         return countDots > 0;
     }
 
@@ -240,7 +242,8 @@ public class Board : MonoBehaviour {
 
     private void OnDrawGizmos() {
         if (editorShowBoardInScene) {
-            Gizmos.DrawGUITexture(Rect.MinMaxRect(minX, maxY + 1, maxX + 1, minY), boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture);
+            Gizmos.DrawGUITexture(Rect.MinMaxRect(minX, maxY + 1, maxX + 1, minY),
+                boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture);
         }
     }
 

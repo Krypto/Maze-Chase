@@ -12,6 +12,7 @@ public class Game : MonoBehaviour {
     public float SpawnPlayerTime = 2f;
     public float deathSequenceTime = 2f;
     public float gameOverTime = 4f;
+    public float beforeLevelUpTime = 2f;
     public float levelUpTime = 2f;
     public float ResumePlayTime = 1f;
     public bool gameIsPlaying {
@@ -83,7 +84,8 @@ public class Game : MonoBehaviour {
             highScoreDisplay.score = scoreDisplay.score;
         }
         if (!board.HasDots() && gameIsPlaying) {
-            LevelUp();
+            StopPlay();
+            Invoke("LevelUp", beforeLevelUpTime);
         }
     }
 
@@ -106,6 +108,7 @@ public class Game : MonoBehaviour {
 
     void ShowBoard() {
         board = FindObjectOfType<Board>();
+        board.setBoardDesignTexture(board.boards[(level - 1) % board.boards.Length]);
         board.Build();
         board.Show();
         navigation = FindObjectOfType<Navigation>();

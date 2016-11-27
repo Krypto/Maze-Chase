@@ -4,7 +4,7 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class Player : MonoBehaviour {
     public float speed = 10f;
-    public float attackModeDuration = 10f;
+    public float attackModeDuration = 7f;
     public int initialEnemyScore = 200;
 
     public GameObject bonus200;
@@ -167,10 +167,7 @@ public class Player : MonoBehaviour {
         if (enemy) {
             if (attackModeTimeRemaining > 0) {
                 game.scoreDisplay.score += enemyScore;
-                enemyScore *= 2;
-                if (enemyScore > 1600) {
-                    enemyScore = 1600;
-                }
+             
                 GameObject obj = null;
                 switch (enemyScore) {
                     case 200:
@@ -190,6 +187,10 @@ public class Player : MonoBehaviour {
                         break;
                 }
                 obj.GetComponent<BonusScore>().color = enemy.GetComponent<SpriteRenderer>().color;
+                enemyScore *= 2;
+                if (enemyScore > 1600) {
+                    enemyScore = 1600;
+                }
                 enemy.Die();
             } else {
                 Die();
