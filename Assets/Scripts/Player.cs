@@ -7,6 +7,12 @@ public class Player : MonoBehaviour {
     public float attackModeDuration = 10f;
     public int initialEnemyScore = 200;
 
+    public GameObject bonus200;
+    public GameObject bonus400;
+    public GameObject bonus800;
+    public GameObject bonus1600;
+
+
     private Board board;
     private Navigation navigation;
     private Game game;
@@ -85,7 +91,7 @@ public class Player : MonoBehaviour {
             }
         }
     }
-    
+
 
     void Move() {
         Vector2 direction = controller.GetDirection();
@@ -135,7 +141,7 @@ public class Player : MonoBehaviour {
         }
         transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
     }
-    
+
     void SetAnimation(float dx, float dy) {
         Animator a = GetComponent<Animator>();
         if (dx == 0 && dy == 0) {
@@ -162,6 +168,28 @@ public class Player : MonoBehaviour {
             if (attackModeTimeRemaining > 0) {
                 game.scoreDisplay.score += enemyScore;
                 enemyScore *= 2;
+                if (enemyScore > 1600) {
+                    enemyScore = 1600;
+                }
+                GameObject obj = null;
+                switch (enemyScore) {
+                    case 200:
+                        obj = Instantiate(bonus200, new Vector3(enemy.transform.position.x, enemy.transform.position.y, -6), Quaternion.identity) as GameObject;
+                        break;
+                    case 400:
+                        obj = Instantiate(bonus400, new Vector3(enemy.transform.position.x, enemy.transform.position.y, -6), Quaternion.identity) as GameObject;
+                        break;
+                    case 800:
+                        obj = Instantiate(bonus800, new Vector3(enemy.transform.position.x, enemy.transform.position.y, -6), Quaternion.identity) as GameObject;
+                        break;
+                    case 1600:
+                        obj = Instantiate(bonus1600, new Vector3(enemy.transform.position.x, enemy.transform.position.y, -6), Quaternion.identity) as GameObject;
+                        break;
+                    default:
+                        Debug.LogError("Unaccounted for bonus score " + enemyScore);
+                        break;
+                }
+                obj.GetComponent<BonusScore>().color = enemy.GetComponent<SpriteRenderer>().color;
                 enemy.Die();
             } else {
                 Die();
@@ -182,5 +210,5 @@ public class Player : MonoBehaviour {
         playing = true;
     }
 
- 
+
 }
