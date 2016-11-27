@@ -30,6 +30,7 @@ public class Board : MonoBehaviour {
     public GameObject[] cellPrefabs;
     public GameObject[] cellParents;
 
+    int countDots = 0;
 
     public bool editorShowBoardInScene = true;
 
@@ -203,6 +204,26 @@ public class Board : MonoBehaviour {
         boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
     }
 
+    private void Update() {
+        Countdots();
+    }
+
+    void Countdots() {
+        countDots = 0;
+        foreach (Transform t in cellParents[(int)CellType.BIG_DOT].transform) {
+            countDots++;
+            return;
+        }
+        foreach (Transform t in cellParents[(int)CellType.DOT].transform) {
+            countDots++;
+            return;
+        }      
+    }
+
+   public bool HasDots() {
+        return countDots > 0;
+    }
+
     public void Clear() {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
@@ -214,6 +235,7 @@ public class Board : MonoBehaviour {
                 Destroy(child.gameObject);
             }
         }
+        enemyPositions.Clear();
     }
 
     private void OnDrawGizmos() {

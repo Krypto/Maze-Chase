@@ -77,7 +77,7 @@ public class Enemy : MonoBehaviour {
             if (this == game.GetEnemies()[i]) {
                 transform.position = board.GetEnemyPositions()[i];
                 SetAnimation(0, 0);
-                timeToAwake = initialTimeToAwake;
+                timeToAwake = initialTimeToAwake + player.attackModeDuration;
                 break;
             }
         }

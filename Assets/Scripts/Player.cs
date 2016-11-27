@@ -34,6 +34,7 @@ public class Player : MonoBehaviour {
         if (playing) {
             Move();
             CheckAttackMode();
+
         }
     }
 
@@ -180,4 +181,6 @@ public class Player : MonoBehaviour {
     public void Resume() {
         playing = true;
     }
+
+ 
 }

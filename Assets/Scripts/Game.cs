@@ -34,6 +34,7 @@ public class Game : MonoBehaviour {
     }
 
     public void PausePlay() {
+        Debug.Log("Pause Play");
         _gameIsPlaying = false;
         player.Pause();
         foreach (Enemy enemy in enemies) {
@@ -42,6 +43,7 @@ public class Game : MonoBehaviour {
     }
 
     public void ResumePlay() {
+        Debug.Log("Resume Play");
         _gameIsPlaying = true;
         player.Resume();
         foreach (Enemy enemy in enemies) {
@@ -79,6 +81,9 @@ public class Game : MonoBehaviour {
     private void Update() {
         if (scoreDisplay.score > highScoreDisplay.score) {//watch for high score
             highScoreDisplay.score = scoreDisplay.score;
+        }
+        if (!board.HasDots() && gameIsPlaying) {
+            LevelUp();
         }
     }
 
