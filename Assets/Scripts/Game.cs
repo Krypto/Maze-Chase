@@ -106,6 +106,7 @@ public class Game : MonoBehaviour {
         scoreDisplay.score = 0;
         highScoreDisplay.prefixText = "High Score: ";
         numLives = initialNumLives;
+        FindObjectOfType<RemainingLife>().numLives = numLives;
     }
 
     void ShowBoard() {
@@ -122,6 +123,7 @@ public class Game : MonoBehaviour {
     }
 
     void SpawnPlayer() {
+        FindObjectOfType<RemainingLife>().numLives = numLives - 1;
         player = (Instantiate(board.GetCellPrefab(Board.CellType.PLAYER),
             board.GetCellParent(Board.CellType.PLAYER).transform) as GameObject).GetComponent<Player>();
         player.transform.position = board.GetPlayerPosition();
