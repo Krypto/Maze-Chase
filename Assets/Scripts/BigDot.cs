@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class BigDot : MonoBehaviour {
+    public AudioClip gulpSound;
+
 
     private ScoreDisplay scoreDisplay;
     private Game game;
@@ -19,7 +21,7 @@ public class BigDot : MonoBehaviour {
 
     void Gulp(Player player) {
 
-        //make big gulp sound
+        AudioSource.PlayClipAtPoint(gulpSound, Camera.main.transform.position);
         scoreDisplay.Advance(50);
         player.AttackMode();
         Destroy(gameObject);

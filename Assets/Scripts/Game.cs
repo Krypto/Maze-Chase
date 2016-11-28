@@ -7,6 +7,8 @@ public class Game : MonoBehaviour {
     public ScoreDisplay highScoreDisplay;
     public int initialNumLives = 3;
     public GameObject[] EnemyPrefab;
+    public AudioClip dieSound;
+
 
     public float startGameSequenceTime = 4f;
     public float SpawnPlayerTime = 2f;
@@ -159,6 +161,7 @@ board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent
     }
 
     void DeathSequence() {
+        AudioSource.PlayClipAtPoint(dieSound, Camera.main.transform.position);
         Destroy(player.gameObject);
     }
 

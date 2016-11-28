@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Dot : MonoBehaviour {
 
+    public AudioClip gulpSound;
+
     private ScoreDisplay scoreDisplay;
     private Game game;
 
@@ -18,8 +20,7 @@ public class Dot : MonoBehaviour {
     }
 
     void Gulp() {
-
-        //make gulp sound
+        AudioSource.PlayClipAtPoint(gulpSound, Camera.main.transform.position);
         scoreDisplay.Advance(10);
         Destroy(gameObject);
     }
