@@ -21,6 +21,12 @@ public class Enemy : MonoBehaviour {
 
     bool isPlaying = true;
 
+    bool deployed = false;
+
+    public bool Deployed() {
+        return deployed;
+    }
+
     public Vector2 CurrentDirection() {
         return new Vector2(currentDx, currentDy);
     }
@@ -53,6 +59,7 @@ public class Enemy : MonoBehaviour {
         ai = (Instantiate(aiPrefab, transform.parent) as GameObject).GetComponent<AI>();
         ai.SetEnemy(this);
         timeToAwake = initialTimeToAwake;
+        deployed = false;
         Pause();
     }
 
@@ -83,10 +90,17 @@ public class Enemy : MonoBehaviour {
         }
     }
 
+    void Deploy() {
+        deployed = true;
+    }
+
     void Move() {
         Vector2 direction = ai.GetDirection();
         int x = (int)Mathf.Round(transform.position.x);
         int y = (int)Mathf.Round(transform.position.y);
+        if (board[x, y] == Board.CellType.ENTRANCE) {
+            Invoke("Deploy", 1f);
+        }
         SetAnimation(direction.x, direction.y);
 
         //update the current motion

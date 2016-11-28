@@ -11,6 +11,7 @@ public class WaypointAI : MonoBehaviour, AI {
     private Navigation navigation = null;
     private Board board = null;
     private Game game;
+    private bool flee = false;
 
     Vector2[] directions = { new Vector2(1, 0), new Vector2(0, 1),
         new Vector2(-1, 0), new Vector2(0, -1) };
@@ -53,14 +54,15 @@ public class WaypointAI : MonoBehaviour, AI {
 
         Navigation.Pair p = navigation.DirectionToWaypoint(grid,
                     (int)Mathf.Round(enemy.transform.position.x),
-                    (int)Mathf.Round(enemy.transform.position.y));
+                    (int)Mathf.Round(enemy.transform.position.y), flee);
 
         if (p.x == 0 && p.y == 0) {
             ResetWaypoint();
             p = navigation.DirectionToWaypoint(grid,
                     (int)Mathf.Round(enemy.transform.position.x),
-                    (int)Mathf.Round(enemy.transform.position.y));
+                    (int)Mathf.Round(enemy.transform.position.y), flee);
         }
+
 
         if (WouldCollide(p) || (p.x == 0 && p.y == 0)) {
             moveRandomlyTime = 5f;
@@ -152,6 +154,11 @@ public class WaypointAI : MonoBehaviour, AI {
     }
 
     private void Update() {
+        if (player && player.attackModeDuration > 0 && !enemy.Deployed()) {
+            flee = true;
+        } else {
+            flee = false;
+        }
         if (moveRandomlyTime > 0) {
             moveRandomlyTime -= Time.deltaTime;
             if (moveRandomlyTime <= 0) {

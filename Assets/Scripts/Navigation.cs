@@ -225,15 +225,43 @@ public class Navigation : MonoBehaviour {
         }
     }
 
-    public Pair DirectionToWaypoint(WaypointGrid grid, int startX, int startY) {
+    public Pair DirectionToWaypoint(WaypointGrid grid, int startX, int startY, bool flee = false) {
         int x = startX;
         int y = startY;
         Pair bestDirection = new Pair(0, 0);
         int bestDistance = grid[x, y];//it's possible best bet is to stay
-
-        //first try up
+        
         Pair direction = new Pair(0, -1);
         int d = grid[x + direction.x, y + direction.y];
+
+        if (flee) {
+            bestDistance = 0;
+            if (d > bestDistance && d < 1000) {
+                bestDistance = d;
+                bestDirection = direction;
+            }
+            direction = new Pair(0, 1);
+            d = grid[x + direction.x, y + direction.y];
+            if (d > bestDistance && d < 1000) {
+                bestDistance = d;
+                bestDirection = direction;
+            }
+            direction = new Pair(-1, 0);
+            d = grid[x + direction.x, y + direction.y];
+            if (d > bestDistance && d < 1000) {
+                bestDistance = d;
+                bestDirection = direction;
+            }
+            direction = new Pair(1, 0);
+            d = grid[x + direction.x, y + direction.y];
+            if (d > bestDistance && d < 1000) {
+                bestDistance = d;
+                bestDirection = direction;
+            }
+            return bestDirection;
+        }
+
+        //first try up
         if (d <= bestDistance) {
             bestDistance = d;
             bestDirection = direction;
