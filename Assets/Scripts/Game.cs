@@ -112,7 +112,7 @@ public class Game : MonoBehaviour {
         board = FindObjectOfType<Board>();
         board.setBoardDesignTexture(board.boards[(level - 1) % board.boards.Length]);
         board.Build();
-        board.Show();
+        board.Show(level);
         navigation = FindObjectOfType<Navigation>();
         navigation.Build(board);
     }

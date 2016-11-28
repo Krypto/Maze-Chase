@@ -50,6 +50,25 @@ public class Board : MonoBehaviour {
         new Color(1,0.5f,0,1),//orange (future expansion)
     };
 
+    public Color[] levelColor = {
+        new Color(0,0,1,1),
+        new Color(0,0,1,1),
+        new Color(1,.5f,.5f,1),
+        new Color(1,.5f,.5f,1),
+        new Color(.25f,1,.5f,1),
+        new Color(.25f,1,.5f,1),
+        new Color(.5f,1,0,1),
+        new Color(.5f,1,0,1),
+        new Color(1,1,0,1),
+        new Color(1,1,0,1),
+        new Color(.5f,0,.5f,1),
+        new Color(.5f,0,.5f,1),
+        new Color(0,0,.5f,1),
+        new Color(0,0,.5f,1),
+        new Color(.5f,0,.25f,1),
+        new Color(.5f,0,.25f,1),
+    };
+
     CellType[,] _cells = new CellType[maxX - minX + 1, maxY - minY + 1];
 
     public CellType this[int x, int y] {
@@ -109,7 +128,7 @@ public class Board : MonoBehaviour {
         }
     }
 
-    public void Show() {
+    public void Show(int level) {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 switch (this[x, y]) {
@@ -117,14 +136,18 @@ public class Board : MonoBehaviour {
                     case CellType.BIG_DOT:
                     case CellType.WALL:
                     case CellType.ENTRANCE:
-                        Show(x, y, this[x, y]);
-
+                        GameObject sprite = Show(x, y, this[x, y]);
+                        if (this[x, y] == CellType.WALL) {
+                            sprite.GetComponent<SpriteRenderer>().color = levelColor[(level - 1) % levelColor.Length];
+                        }
                         //make walls continuous
                         if (this[x, y] == CellType.WALL && this[x - 1, y] == CellType.WALL) {
-                            Show(x - 0.5f, y, -6, wallBox);
+                            sprite = Show(x - 0.5f, y, -6, wallBox);
+                            sprite.GetComponent<SpriteRenderer>().color = levelColor[(level - 1) % levelColor.Length];
                         }
                         if (this[x, y] == CellType.WALL && this[x, y - 1] == CellType.WALL) {
-                            Show(x, y - 0.5f, -6, wallBox);
+                            sprite = Show(x, y - 0.5f, -6, wallBox);
+                            sprite.GetComponent<SpriteRenderer>().color = levelColor[(level - 1) % levelColor.Length];
                         }
                         break;
                     case CellType.PLAYER:
@@ -191,14 +214,16 @@ public class Board : MonoBehaviour {
         return t.GetPixel(x - minX, y - minY);
     }
 
-    void Show(int x, int y, CellType t) {
+    GameObject Show(int x, int y, CellType t) {
         GameObject sprite = Instantiate(cellPrefabs[(int)t], cellParents[(int)t].transform) as GameObject;
         sprite.transform.position = new Vector2(x, y);
+        return sprite;
     }
 
-    void Show(float x, float y, float z, GameObject t) {
+    GameObject Show(float x, float y, float z, GameObject t) {
         GameObject sprite = Instantiate(t, cellParents[(int)CellType.WALL].transform) as GameObject;
         sprite.transform.position = new Vector3(x, y, z);
+        return sprite;
     }
 
     // Use this for initialization
