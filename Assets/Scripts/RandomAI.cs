@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class RandomAI : MonoBehaviour, AI {
+
+    public bool favorDots = false;
+
     private Enemy enemy;
     private Game game;
-
+    private Board board;
 
     Vector2[] directions = { new Vector2(1, 0), new Vector2(0, 1),
         new Vector2(-1, 0), new Vector2(0, -1) };
@@ -15,6 +18,9 @@ public class RandomAI : MonoBehaviour, AI {
     public Vector2 GetDirection() {
         if (game == null) {
             game = FindObjectOfType<Game>();
+        }
+        if (board == null) {
+            board = FindObjectOfType<Board>();
         }
 
         canGo.Clear();
@@ -29,6 +35,22 @@ public class RandomAI : MonoBehaviour, AI {
         }
         Vector2 d = enemy.CurrentDirection();
 
+        if (favorDots) {
+            if (d == Vector2.zero || !enemy.CanGo(d) || WouldCollide(d) || !IsDot(d)) {
+                Vector2 dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+                if (!IsDot(dd)) {
+                    dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+                }
+                if (!IsDot(dd)) {
+                    dd = canGo[UnityEngine.Random.Range(0, canGo.Count)];
+                }
+                if (IsDot(dd)) {
+                    return dd;
+                }
+            }
+
+        }
+        
         if (d == Vector2.zero || !enemy.CanGo(d) || WouldCollide(d)) {
             Vector2 dd =  canGo[UnityEngine.Random.Range(0, canGo.Count)];
             if (WouldCollide(dd)) {
@@ -67,6 +89,17 @@ public class RandomAI : MonoBehaviour, AI {
 
     public void SetEnemy(Enemy enemy) {
         this.enemy = enemy;
+    }
+
+    bool IsDot(Vector2 d) {
+        int dx = (int)Mathf.Round(d.x);
+        int dy = (int)Mathf.Round(d.y);
+        int x = (int)Mathf.Round(enemy.transform.position.x) + dx;
+        int y = (int)Mathf.Round(enemy.transform.position.y) + dy;
+        if (board[x, y] == Board.CellType.DOT) {
+            return true;
+        }
+        return false;
     }
 
     bool WouldCollide(Vector2 d) {

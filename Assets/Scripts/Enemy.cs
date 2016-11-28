@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour {
+    public bool favorDots = false;
 
     public float speed = 10f;
     public GameObject aiPrefab;
@@ -58,6 +59,9 @@ public class Enemy : MonoBehaviour {
         player = FindObjectOfType<Player>();
         ai = (Instantiate(aiPrefab, transform.parent) as GameObject).GetComponent<AI>();
         ai.SetEnemy(this);
+        if(favorDots && ai is RandomAI) {
+            ((RandomAI)ai).favorDots = true;
+        }
         timeToAwake = initialTimeToAwake;
         deployed = false;
         Pause();
