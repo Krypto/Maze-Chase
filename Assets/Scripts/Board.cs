@@ -25,7 +25,6 @@ public class Board : MonoBehaviour {
         OUT_OF_BOUNDS = 11,
     }
 
-    public GameObject boardDesignImage;
     public GameObject wallBox;
     public GameObject[] cellPrefabs;
     public GameObject[] cellParents;
@@ -89,6 +88,8 @@ public class Board : MonoBehaviour {
     Texture2D boardDesignTexture;
 
     public Texture2D[] boards;
+    public Texture2D firstBoard;
+
 
     public GameObject GetCellPrefab(CellType t) {
         return cellPrefabs[(int)t];
@@ -228,7 +229,7 @@ public class Board : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        boardDesignTexture = boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture;
+        boardDesignTexture = firstBoard;
     }
 
     private void Update() {
@@ -268,7 +269,7 @@ public class Board : MonoBehaviour {
     private void OnDrawGizmos() {
         if (editorShowBoardInScene) {
             Gizmos.DrawGUITexture(Rect.MinMaxRect(minX, maxY + 1, maxX + 1, minY),
-                boardDesignImage.GetComponent<SpriteRenderer>().sprite.texture);
+                firstBoard);
         }
     }
 

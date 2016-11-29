@@ -137,9 +137,11 @@ public class Player : MonoBehaviour {
             targetX = x;
             targetY = y;
             //Debug.Log("Teleporting to " + targetX + ", " + targetY);
-            transform.position = new Vector3(targetX, targetY, transform.position.z);
+            transform.position = new Vector3(targetX+direction.x, targetY+direction.y, transform.position.z);
+
+        } else {
+            transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
         }
-        transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
     }
 
     void SetAnimation(float dx, float dy) {
