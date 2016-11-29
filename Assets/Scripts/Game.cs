@@ -32,7 +32,7 @@ public class Game : MonoBehaviour {
     int level = 0;
     int numLives;
     bool _gameIsPlaying = false;
-
+    private int nextBonusLife = 10000;
 
     public Enemy[] GetEnemies() {
         return enemies;
@@ -80,6 +80,7 @@ public class Game : MonoBehaviour {
     }
 
     private void Start() {
+        nextBonusLife = 10000;
         highScoreDisplay.score = PlayerPrefs.GetInt("HighScore");
         Instantiate(titlePrefab, new Vector3(0,0,-7f), Quaternion.identity);
         PreGame();
@@ -92,6 +93,10 @@ public class Game : MonoBehaviour {
         if (!board.HasDots() && gameIsPlaying) {
             StopPlay();
             Invoke("LevelUp", beforeLevelUpTime);
+        }
+        if(scoreDisplay.score > nextBonusLife) {
+            numLives++;
+            FindObjectOfType<RemainingLife>().numLives = numLives-1;
         }
     }
 
@@ -187,6 +192,7 @@ board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent
     }
 
     void MainMenu() {
+        board.Clear();
         Invoke("Start", replayTime);
     }
 
