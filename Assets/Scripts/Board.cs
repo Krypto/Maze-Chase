@@ -264,6 +264,7 @@ public class Board : MonoBehaviour {
             }
         }
         enemyPositions.Clear();
+        teleports.Clear();
     }
 
     private void OnDrawGizmos() {

@@ -31,6 +31,7 @@ public class RandomAI : MonoBehaviour, AI {
         }
         if (canGo.Count == 0) {
             Debug.LogError("enemy is stuck!");
+            enemy.Die();
             return Vector2.zero;
         }
         Vector2 d = enemy.CurrentDirection();

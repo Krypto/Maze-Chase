@@ -15,7 +15,7 @@ public class RemainingLife : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if(numLivesDisplayed != numLives) {
+        if(numLivesDisplayed != numLives || Random.value > .99f) {
             numLivesDisplayed = numLives;
             Clear();
             Show();

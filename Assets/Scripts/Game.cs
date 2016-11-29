@@ -139,7 +139,7 @@ public class Game : MonoBehaviour {
 
     }
 
-    void SpawnPlayer() {
+    public void SpawnPlayer() {
         FindObjectOfType<RemainingLife>().numLives = numLives - 1;
         player = (Instantiate(board.GetCellPrefab(Board.CellType.PLAYER),
             board.GetCellParent(Board.CellType.PLAYER).transform) as GameObject).GetComponent<Player>();

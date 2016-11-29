@@ -132,16 +132,31 @@ public class Player : MonoBehaviour {
         }
         //teleport to matching tunnel if at end of a tunnel
         if (board[targetX, targetY] == Board.CellType.TELEPORT) {
-            navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
-            targetX = x;
-            targetY = y;
-            //Debug.Log("Teleporting to " + targetX + ", " + targetY);
-            transform.position = new Vector3(targetX+direction.x, targetY+direction.y, transform.position.z);
-
+            Teleport(targetX, targetY, x, y, direction);
         } else {
             transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
         }
     }
+
+    void Teleport(int targetX, int targetY, int x, int y, Vector2 direction) {
+        int oldx = x;
+        int oldy = y;
+        navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
+        targetX = x;
+        targetY = y;
+        transform.position = new Vector3(targetX + direction.x, targetY + direction.y, transform.position.z);
+
+        x = (int)(Mathf.Round(transform.position.x));
+        y = (int)(Mathf.Round(transform.position.y));
+        if ((navigation[x, y] & Navigation.Directions.STAY) == 0) {
+            Debug.LogError("Teleport to nowhere!!!!! " + x + "," + y);
+
+        } else {
+            transform.position = new Vector3(x, y, transform.position.z);
+        }
+
+    }
+
 
     void SetAnimation(float dx, float dy) {
         Animator a = GetComponent<Animator>();
@@ -168,7 +183,7 @@ public class Player : MonoBehaviour {
         if (enemy) {
             if (attackModeTimeRemaining > 0) {
                 game.scoreDisplay.score += enemyScore;
-             
+
                 GameObject obj = null;
                 switch (enemyScore) {
                     case 200:

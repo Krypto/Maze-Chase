@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour {
         }
         if (canGo.Count == 0) {
             Debug.LogError("player is stuck!");
+            Destroy(player.gameObject);
+            FindObjectOfType<Game>().SpawnPlayer();
             return Vector2.zero;
         }
         Vector2 d = player.CurrentDirection();

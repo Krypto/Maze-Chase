@@ -139,15 +139,18 @@ public class Enemy : MonoBehaviour {
         }
         //teleport to matching tunnel if at end of a tunnel
         if (board[targetX, targetY] == Board.CellType.TELEPORT) {
-            navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
-            targetX = x;
-            targetY = y;
-            //Debug.Log("Teleporting to " + targetX + ", " + targetY);
-            transform.position = new Vector3(targetX + direction.x, targetY + direction.y, transform.position.z);
-
+            Teleport(targetX, targetY, x, y, direction);
         } else {
             transform.Translate(new Vector3(fdx * speed * Time.deltaTime, fdy * speed * Time.deltaTime, 0), Space.World);
         }
+    }
+
+
+    void Teleport(int targetX, int targetY, int x, int y, Vector2 direction) {
+        navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
+        targetX = x;
+        targetY = y;
+        transform.position = new Vector3(targetX + 1.5f * direction.x, targetY + 1.5f * direction.y, transform.position.z);
     }
 
     void SetAnimation(float dx, float dy) {
