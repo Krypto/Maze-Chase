@@ -8,6 +8,7 @@ public class Game : MonoBehaviour {
     public int initialNumLives = 3;
     public GameObject[] EnemyPrefab;
     public AudioClip dieSound;
+    public GameObject titlePrefab;
 
 
     public float startGameSequenceTime = 4f;
@@ -17,6 +18,7 @@ public class Game : MonoBehaviour {
     public float beforeLevelUpTime = 2f;
     public float levelUpTime = 2f;
     public float ResumePlayTime = 1f;
+    public float replayTime = 2f;
     public bool gameIsPlaying {
         get {
             return _gameIsPlaying;
@@ -78,6 +80,8 @@ public class Game : MonoBehaviour {
     }
 
     private void Start() {
+        highScoreDisplay.score = PlayerPrefs.GetInt("HighScore");
+        Instantiate(titlePrefab, new Vector3(0,0,-7f), Quaternion.identity);
         PreGame();
     }
 
@@ -178,12 +182,12 @@ board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent
     }
 
     void GameOver() {
-        //save high score
+        PlayerPrefs.SetInt("HighScore", highScoreDisplay.score);
         Invoke("MainMenu", gameOverTime);
     }
 
     void MainMenu() {
-
+        Invoke("Start", replayTime);
     }
 
 }
