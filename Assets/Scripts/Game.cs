@@ -8,6 +8,7 @@ public class Game : MonoBehaviour {
     public int initialNumLives = 3;
     public GameObject[] EnemyPrefab;
     public AudioClip dieSound;
+    public AudioClip bonusLifeSound;
     public GameObject titlePrefab;
 
 
@@ -97,6 +98,8 @@ public class Game : MonoBehaviour {
         if(scoreDisplay.score > nextBonusLife) {
             numLives++;
             FindObjectOfType<RemainingLife>().numLives = numLives-1;
+            AudioSource.PlayClipAtPoint(bonusLifeSound, Camera.main.transform.position);
+            nextBonusLife *= 2;
         }
     }
 
