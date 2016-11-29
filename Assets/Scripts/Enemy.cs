@@ -13,7 +13,6 @@ public class Enemy : MonoBehaviour {
     private Game game;
     private Board board;
     private Navigation navigation;
-    private Player player;
     private AI ai;
     float timeToAwake;
 
@@ -56,7 +55,6 @@ public class Enemy : MonoBehaviour {
         board = FindObjectOfType<Board>();
         navigation = FindObjectOfType<Navigation>();
         game = FindObjectOfType<Game>();
-        player = FindObjectOfType<Player>();
         ai = (Instantiate(aiPrefab, transform.parent) as GameObject).GetComponent<AI>();
         ai.SetEnemy(this);
         if(favorDots && ai is RandomAI) {

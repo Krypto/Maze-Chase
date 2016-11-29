@@ -40,7 +40,6 @@ public class Player : MonoBehaviour {
         if (playing) {
             Move();
             CheckAttackMode();
-
         }
     }
 
