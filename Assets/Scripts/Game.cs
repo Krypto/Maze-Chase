@@ -11,6 +11,7 @@ public class Game : MonoBehaviour {
     public AudioClip bonusLifeSound;
     public AudioClip startGameSound;
     public GameObject titlePrefab;
+    public GameObject[] cutscenePrefab;
     public GameObject bonusItemPrefab;
 
 
@@ -186,8 +187,7 @@ board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent
     }
 
     float MaybeCutScene() {
-        bool cutscene = false;
-        //if level==3, and several other values, cutscene=true
+        bool cutscene = (level==3) || (level==5) || (level==8) || (level % 7 == 0);       
         if (cutscene) {
             return CutScene();
         }
@@ -195,7 +195,8 @@ board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent
     }
 
     float CutScene() {
-        return 1f;
+        Instantiate(cutscenePrefab[level % cutscenePrefab.Length], new Vector3(0, 0, -7f), Quaternion.identity);
+        return 3f;
     }
 
     void DeathSequence() {
