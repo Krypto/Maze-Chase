@@ -22,6 +22,8 @@ public class Game : MonoBehaviour {
     public float levelUpTime = 2f;
     public float ResumePlayTime = 1f;
     public float replayTime = 2f;
+    public float startMusicTime = 4f;
+
     public bool gameIsPlaying {
         get {
             return _gameIsPlaying;
@@ -85,14 +87,15 @@ public class Game : MonoBehaviour {
     private void Start() {
         nextBonusLife = 10000;
         highScoreDisplay.score = PlayerPrefs.GetInt("HighScore");
-        Instantiate(titlePrefab, new Vector3(0,0,-7f), Quaternion.identity);
+        Instantiate(titlePrefab, new Vector3(0, 0, -7f), Quaternion.identity);
         PreGame();
     }
 
     private void Update() {
-        if(Random.value > .999f) {
+        if (Random.value > .999f) {
             if (!FindObjectOfType<BonusItem>()) {
-                Instantiate(bonusItemPrefab, board.GetBonusPosition(), Quaternion.identity);
+                GameObject pb = Instantiate(bonusItemPrefab, board.GetBonusPosition(), Quaternion.identity) as GameObject;                
+                pb.transform.SetParent(board.GetCellParent(Board.CellType.BONUS_PICKUP).transform);
             }
         }
         if (scoreDisplay.score > highScoreDisplay.score) {//watch for high score
@@ -102,9 +105,9 @@ public class Game : MonoBehaviour {
             StopPlay();
             Invoke("LevelUp", beforeLevelUpTime);
         }
-        if(scoreDisplay.score > nextBonusLife) {
+        if (scoreDisplay.score > nextBonusLife) {
             numLives++;
-            FindObjectOfType<RemainingLife>().numLives = numLives-1;
+            FindObjectOfType<RemainingLife>().numLives = numLives - 1;
             AudioSource.PlayClipAtPoint(bonusLifeSound, Camera.main.transform.position);
             nextBonusLife *= 2;
         }
@@ -117,6 +120,15 @@ public class Game : MonoBehaviour {
         Invoke("SpawnPlayer", SpawnPlayerTime);
         Invoke("SpawnEnemies", SpawnPlayerTime);
         Invoke("StartPlay", startGameSequenceTime);
+        Invoke("StartMusic", startMusicTime);
+    }
+
+    void StartMusic() {
+        GetComponent<AudioSource>().Play();
+    }
+
+    void StopMusic() {
+        GetComponent<AudioSource>().Stop();
     }
 
     void Initialize() {
@@ -203,6 +215,7 @@ board.GetCellParent(Board.CellType.ENEMY).transform) as GameObject).GetComponent
 
     void GameOver() {
         PlayerPrefs.SetInt("HighScore", highScoreDisplay.score);
+        StopMusic();
         Invoke("MainMenu", gameOverTime);
     }
 
