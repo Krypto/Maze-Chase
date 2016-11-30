@@ -139,8 +139,6 @@ public class Player : MonoBehaviour {
     }
 
     void Teleport(int targetX, int targetY, int x, int y, Vector2 direction) {
-        int oldx = x;
-        int oldy = y;
         navigation.FindMatchingTeleport(targetX, targetY, out x, out y);
         targetX = x;
         targetY = y;
@@ -179,6 +177,11 @@ public class Player : MonoBehaviour {
     }
 
     private void OnTriggerEnter2D(Collider2D collider) {
+        BonusItem bonusItem = collider.gameObject.GetComponent<BonusItem>();
+        if (bonusItem) {
+            Instantiate(bonus800, new Vector3(bonusItem.transform.position.x, bonusItem.transform.position.y, -6), Quaternion.identity);
+        }
+
         Enemy enemy = collider.gameObject.GetComponent<Enemy>();
         if (enemy) {
             if (attackModeTimeRemaining > 0) {

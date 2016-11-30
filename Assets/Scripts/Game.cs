@@ -10,6 +10,7 @@ public class Game : MonoBehaviour {
     public AudioClip dieSound;
     public AudioClip bonusLifeSound;
     public GameObject titlePrefab;
+    public GameObject bonusItemPrefab;
 
 
     public float startGameSequenceTime = 4f;
@@ -88,6 +89,11 @@ public class Game : MonoBehaviour {
     }
 
     private void Update() {
+        if(Random.value > .999f) {
+            if (!FindObjectOfType<BonusItem>()) {
+                Instantiate(bonusItemPrefab, board.GetBonusPosition(), Quaternion.identity);
+            }
+        }
         if (scoreDisplay.score > highScoreDisplay.score) {//watch for high score
             highScoreDisplay.score = scoreDisplay.score;
         }
