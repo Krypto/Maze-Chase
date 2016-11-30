@@ -9,6 +9,7 @@ public class Game : MonoBehaviour {
     public GameObject[] EnemyPrefab;
     public AudioClip dieSound;
     public AudioClip bonusLifeSound;
+    public AudioClip startGameSound;
     public GameObject titlePrefab;
     public GameObject bonusItemPrefab;
 
@@ -142,7 +143,7 @@ public class Game : MonoBehaviour {
     }
 
     void StartGameSequence() {
-
+        AudioSource.PlayClipAtPoint(startGameSound, Camera.main.transform.position);
     }
 
     public void SpawnPlayer() {
